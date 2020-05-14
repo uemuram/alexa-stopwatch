@@ -19,7 +19,7 @@
                     "name": "HelloWorldIntent",
                     "slots": [],
                     "samples": [
-                        "hello",
+                        "ハロー",
                         "how are you",
                         "say hi world",
                         "say hi",
@@ -30,6 +30,14 @@
                 },
                 {
                     "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
                     "samples": []
                 }
             ],

@@ -9,7 +9,7 @@
             "hello",
             "help"
           ],
-          "name": "stopwatch",
+          "name": "ストップウォッチ",
           "description": "Sample Full Description"
         }
       },
@@ -22,7 +22,12 @@
       "custom": {
         "endpoint": {
           "uri": "arn:aws:lambda:ap-northeast-1:704229799072:function:ask-stopwatch-default-skillStac-AlexaSkillFunction-11F0Z87TF6IV1"
-        }
+        },
+        "interfaces": [
+          {
+            "type": "AUDIO_PLAYER"
+          }
+        ]
       }
     },
     "manifestVersion": "1.0"
