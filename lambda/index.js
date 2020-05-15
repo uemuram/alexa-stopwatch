@@ -21,9 +21,11 @@ const HelloWorldIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Hello World!';
+        const url = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+        const token = 'sample';
         return handlerInput.responseBuilder
-            .speak(speakOutput)
+            .speak('再生します')
+            .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
@@ -49,8 +51,12 @@ const CancelAndStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
     },
     handle(handlerInput) {
-        const speakOutput = 'Goodbye!';
+        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+        let offset = audioPlayer.offsetInMilliseconds;
+
+        const speakOutput = offset + 'ミリ秒再生しました';
         return handlerInput.responseBuilder
+            .addAudioPlayerStopDirective()
             .speak(speakOutput)
             .getResponse();
     }
@@ -113,8 +119,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         CancelAndStopIntentHandler,
         SessionEndedRequestHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
-        ) 
+    )
     .addErrorHandlers(
         ErrorHandler,
-        )
+    )
     .lambda();
