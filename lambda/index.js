@@ -52,9 +52,28 @@ const CancelAndStopIntentHandler = {
     },
     handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        let offset = audioPlayer.offsetInMilliseconds;
+        let time = audioPlayer.offsetInMilliseconds;
+        time = Math.round(time / 10) * 10;
+        let h = Math.floor(time / 3600000);
+        time %= 3600000
+        let m = Math.floor(time / 60000);
+        time %= 60000;
+        let s = Math.floor(time / 1000);
+        time %= 1000;
+        let ms = ('00' + time).slice(-3);
+        let ms1 = ms.substring(0, 1);
+        let ms2 = ms.substring(1, 2);
+        let timeStr = '';
+        if (h > 0) {
+            timeStr = h + "時間" + m + "分" + s + "秒";
+        } else if (m > 0) {
+            timeStr = m + "分" + s + "秒";
+        } else {
+            timeStr = s + "秒";
+        }
+        timeStr += (ms1 + ms2);
 
-        const speakOutput = offset + 'ミリ秒再生しました';
+        const speakOutput = timeStr + '再生しました';
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speakOutput)
