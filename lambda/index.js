@@ -2,7 +2,9 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
-const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+//const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/countdown.mp3';
+
 const Speech = require('ssml-builder');
 
 const LaunchRequestHandler = {
