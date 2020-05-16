@@ -2,8 +2,7 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
-//const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
-const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/countdown.mp3';
+const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
 
 const Speech = require('ssml-builder');
 
@@ -54,7 +53,9 @@ const TimerStopIntentHandler = {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
 
         // ミリ秒を結果に変換
-        let time = audioPlayer.offsetInMilliseconds;
+        let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
+        // TODO timeがマイナスだったら終わる
+
         time = Math.round(time / 10) * 10;
         let h = Math.floor(time / 3600000);
         time %= 3600000
