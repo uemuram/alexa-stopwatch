@@ -90,8 +90,7 @@ const DoNothingIntentHandler = {
             );
     },
     handle(handlerInput) {
-        return handlerInput.responseBuilder
-            .getResponse();
+        return handlerInput.responseBuilder.getResponse();
     }
 };
 
@@ -134,7 +133,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `Sorry, I had trouble doing what you asked. Please try again.`;
+        const speakOutput = `エラーが発生しました。もう一度お試しください。`;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
