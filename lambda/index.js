@@ -3,6 +3,7 @@
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
 const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+const Speech = require('ssml-builder');
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -45,10 +46,9 @@ const TimerStopIntentHandler = {
         console.log("停止");
 
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+
+        // ミリ秒を結果に変換
         let time = audioPlayer.offsetInMilliseconds;
-
-        console.log("タイム:" + time);
-
         time = Math.round(time / 10) * 10;
         let h = Math.floor(time / 3600000);
         time %= 3600000
@@ -67,13 +67,17 @@ const TimerStopIntentHandler = {
         } else {
             timeStr = s + "秒";
         }
-        timeStr += (ms1 + ms2);
+        const msReading = {
+            "0": "れー", "1": "いち", "2": "にー", "3": "さん", "4": "よん",
+            "5": "ごー", "6": "ろく", "7": "なな", "8": "はち", "9": "きゅう",
+        }
+        let speechStr = timeStr + msReading[ms1] + msReading[ms2] + "です。";
+        let cardStr = timeStr + ms1 + ms2;
 
-        const speakOutput = timeStr + 'です。';
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
-            .speak(speakOutput)
-            .withSimpleCard('計測結果', timeStr)
+            .speak(speechStr)
+            .withSimpleCard('シンプルストップウォッチ : 計測結果', cardStr)
             .getResponse();
     }
 };
@@ -156,8 +160,6 @@ const IntentReflectorHandler = {
         console.log(intentName);
         return handlerInput.responseBuilder
             .speak(speakOutput)
-//            .withSimpleCard('IntentReflectorHandler', intentName)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
 };
@@ -209,5 +211,5 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addErrorHandlers(
         ErrorHandler,
     )
- //   .addRequestInterceptors(RequestLog)
+    //   .addRequestInterceptors(RequestLog)
     .lambda();
