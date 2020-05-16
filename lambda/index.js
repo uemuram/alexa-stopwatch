@@ -77,6 +77,7 @@ const CancelAndStopIntentHandler = {
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speakOutput)
+            .withSimpleCard('計測結果', timeStr)
             .getResponse();
     }
 };
@@ -104,6 +105,7 @@ const IntentReflectorHandler = {
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
+            .withSimpleCard('IntentReflectorHandler', intentName)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
