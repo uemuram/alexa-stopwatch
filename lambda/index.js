@@ -44,11 +44,12 @@ const HelpIntentHandler = {
             .getResponse();
     }
 };
-const CancelAndStopIntentHandler = {
+const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
     handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
@@ -81,6 +82,26 @@ const CancelAndStopIntentHandler = {
             .getResponse();
     }
 };
+
+const DoNothingIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.LoopOffIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.LoopOnIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NextIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PreviousIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.RepeatIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ShuffleOffIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ShuffleOnIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StartOverIntent'
+            );
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .getResponse();        
+    }
+};
+
 const SessionEndedRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
@@ -137,7 +158,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         HelloWorldIntentHandler,
         HelpIntentHandler,
-        CancelAndStopIntentHandler,
+        TimerStopIntentHandler,
+        DoNothingIntentHandler,
         SessionEndedRequestHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
