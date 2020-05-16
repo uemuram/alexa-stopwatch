@@ -2,6 +2,7 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
+const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -10,11 +11,10 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         console.log("計測開始");
 
-        const url = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
         const token = 'timer';
         return handlerInput.responseBuilder
             .speak('計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, 0, null)
             .getResponse();
     }
 };
@@ -32,6 +32,8 @@ const HelpIntentHandler = {
             .getResponse();
     }
 };
+
+// タイマー停止
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -67,11 +69,31 @@ const TimerStopIntentHandler = {
         }
         timeStr += (ms1 + ms2);
 
-        const speakOutput = timeStr + '再生しました';
+        const speakOutput = timeStr + 'です。';
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speakOutput)
             .withSimpleCard('計測結果', timeStr)
+            .getResponse();
+    }
+};
+
+// タイマー再開
+const TimerRestartIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
+    },
+    handle(handlerInput) {
+        console.log("再開");
+
+        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+        const token = audioPlayer.token;
+        const offset = audioPlayer.offsetInMilliseconds;
+
+        return handlerInput.responseBuilder
+            .speak('計測を再開します。')
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null)
             .getResponse();
     }
 };
@@ -130,11 +152,11 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `You just triggered ${intentName}`;
-
+        const speakOutput = `想定外の呼び出しが発生しました。もう一度お試しください。`;
+        console.log(intentName);
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .withSimpleCard('IntentReflectorHandler', intentName)
+//            .withSimpleCard('IntentReflectorHandler', intentName)
             //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
     }
@@ -159,6 +181,7 @@ const ErrorHandler = {
 };
 
 /*
+// リクエストインターセプター(エラー調査用)
 const RequestLog = {
     process(handlerInput) {
         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
@@ -177,6 +200,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         HelpIntentHandler,
         TimerStopIntentHandler,
+        TimerRestartIntentHandler,
         DoNothingIntentHandler,
         AudioPlayerEventHandler,
         SessionEndedRequestHandler,
