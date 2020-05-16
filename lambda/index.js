@@ -12,10 +12,9 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         console.log("計測開始");
 
-        const token = 'timer';
         return handlerInput.responseBuilder
             .speak('計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, 0, null)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null)
             .getResponse();
     }
 };
@@ -25,11 +24,16 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
+        const speakOutput = ''
+            + 'シンプルなストップウォッチスキルです。最大1時間の計測ができます。'
+            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
+            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
+            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
+            + '新たに計測を始める場合は、もう一度スキルを起動してください。'
+            ;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt(speakOutput)
             .getResponse();
     }
 };
