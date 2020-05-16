@@ -54,7 +54,14 @@ const TimerStopIntentHandler = {
 
         // ミリ秒を結果に変換
         let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
-        // TODO timeがマイナスだったら終わる
+
+        // タイマー音声内でまだ開始していなかったらキャンセル。
+        if (time < 0) {
+            return handlerInput.responseBuilder
+            .addAudioPlayerStopDirective()
+            .speak('停止します。')
+            .getResponse();
+        }
 
         time = Math.round(time / 10) * 10;
         let h = Math.floor(time / 3600000);
