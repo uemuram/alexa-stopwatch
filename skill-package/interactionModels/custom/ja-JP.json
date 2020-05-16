@@ -9,24 +9,11 @@
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": ["ヘルプ"]
                 },
                 {
                     "name": "AMAZON.StopIntent",
                     "samples": []
-                },
-                {
-                    "name": "HelloWorldIntent",
-                    "slots": [],
-                    "samples": [
-                        "ハロー",
-                        "how are you",
-                        "say hi world",
-                        "say hi",
-                        "hi",
-                        "say hello world",
-                        "say hello"
-                    ]
                 },
                 {
                     "name": "AMAZON.NavigateHomeIntent",

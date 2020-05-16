@@ -8,26 +8,19 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'ようこそ';
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
-};
-const HelloWorldIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
-    },
-    handle(handlerInput) {
         const url = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
-        const token = 'sample';
+        const token = 'timer';
         return handlerInput.responseBuilder
-            .speak('再生します')
+            .speak('計測を開始します。')
             .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
             .getResponse();
+        /*
+                const speakOutput = 'ようこそ';
+                return handlerInput.responseBuilder
+                    .speak(speakOutput)
+                    .reprompt(speakOutput)
+                    .getResponse();
+        */
     }
 };
 const HelpIntentHandler = {
@@ -40,7 +33,7 @@ const HelpIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .reprompt(speakOutput)
+            //.reprompt(speakOutput)
             .getResponse();
     }
 };
@@ -98,7 +91,7 @@ const DoNothingIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .getResponse();        
+            .getResponse();
     }
 };
 
@@ -145,7 +138,7 @@ const ErrorHandler = {
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .reprompt(speakOutput)
+            //.reprompt(speakOutput)
             .getResponse();
     }
 };
@@ -156,7 +149,6 @@ const ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
         HelpIntentHandler,
         TimerStopIntentHandler,
         DoNothingIntentHandler,
