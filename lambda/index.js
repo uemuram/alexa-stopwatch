@@ -3,6 +3,24 @@
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
 const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+const audioMetaData = {
+    "title": "計測中",
+    "subtitle": "「アレクサ、ストップ」で停止",
+    "art": {
+        "sources": [
+            {
+                "url": "https://uemuram.github.io/alexa-stopwatch/icon512.png"
+            }
+        ]
+    },
+    "backgroundImage": {
+        "sources": [
+            {
+                "url": "https://uemuram.github.io/alexa-stopwatch/icon512.png"
+            }
+        ]
+    }
+}
 
 const Speech = require('ssml-builder');
 
@@ -13,7 +31,7 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         return handlerInput.responseBuilder
             .speak('計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
             .getResponse();
     }
 };
@@ -105,7 +123,7 @@ const TimerRestartIntentHandler = {
 
         return handlerInput.responseBuilder
             .speak('計測を再開します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
             .getResponse();
     }
 };
@@ -180,7 +198,7 @@ const TimerRestartPlaybackControllerHandler = {
         const offset = audioPlayer.offsetInMilliseconds;
 
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
             .getResponse();
     }
 };
