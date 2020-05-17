@@ -11,8 +11,6 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        console.log("計測開始");
-
         return handlerInput.responseBuilder
             .speak('計測を開始します。')
             .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null)
@@ -48,8 +46,6 @@ const TimerStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
     handle(handlerInput) {
-        console.log("停止");
-
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
 
         // ミリ秒を結果に変換
@@ -58,9 +54,9 @@ const TimerStopIntentHandler = {
         // タイマー音声内でまだ開始していなかったらキャンセル。
         if (time < 0) {
             return handlerInput.responseBuilder
-            .addAudioPlayerStopDirective()
-            .speak('停止します。')
-            .getResponse();
+                .addAudioPlayerStopDirective()
+                .speak('停止します。')
+                .getResponse();
         }
 
         time = Math.round(time / 10) * 10;
@@ -103,8 +99,6 @@ const TimerRestartIntentHandler = {
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
     },
     handle(handlerInput) {
-        console.log("再開");
-
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
         const token = audioPlayer.token;
         const offset = audioPlayer.offsetInMilliseconds;
@@ -135,8 +129,8 @@ const DoNothingIntentHandler = {
     }
 };
 
-// オーディオの状態(開始した、終了した、など)によって発生するイベントのハンドラ
-const AudioPlayerEventHandler = {
+// オーディオの状態(開始した、終了した、など)によって発生するイベントのハンドラ(特に何もしない)
+const DoNothingAudioPlayerHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackStarted'
             || Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackFinished'
@@ -147,6 +141,47 @@ const AudioPlayerEventHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder.getResponse();
+    }
+};
+
+// 画面操作によって発生するイベントのハンドラ(特に何もしない)
+const DoNothingPlaybackControllerHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PreviousCommandIssued'
+            || Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.NextCommandIssued'
+            || Alexa.getRequestType(handlerInput.requestEnvelope) === 'System.ExceptionEncountered'
+            ;
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder.getResponse();
+    }
+};
+
+// 画面操作によって発生するイベントのハンドラ(停止)
+const TimerStopPlaybackControllerHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PauseCommandIssued';
+    },
+    handle(handlerInput) {
+        return handlerInput.responseBuilder
+            .addAudioPlayerStopDirective()
+            .getResponse();
+    }
+};
+
+// 画面操作によって発生するイベントのハンドラ(再開)
+const TimerRestartPlaybackControllerHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PlayCommandIssued';
+    },
+    handle(handlerInput) {
+        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+        const token = audioPlayer.token;
+        const offset = audioPlayer.offsetInMilliseconds;
+
+        return handlerInput.responseBuilder
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null)
+            .getResponse();
     }
 };
 
@@ -196,17 +231,17 @@ const ErrorHandler = {
     }
 };
 
-/*
-// リクエストインターセプター(エラー調査用)
-const RequestLog = {
-    process(handlerInput) {
-        //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-        console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
-        console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
-        return;
-    }
-};
-*/
+
+// // リクエストインターセプター(エラー調査用)
+// const RequestLog = {
+//     process(handlerInput) {
+//         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+//         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
+//         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
+//         return;
+//     }
+// };
+
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
 // payloads to the handlers above. Make sure any new handlers or interceptors you've
@@ -218,12 +253,15 @@ exports.handler = Alexa.SkillBuilders.custom()
         TimerStopIntentHandler,
         TimerRestartIntentHandler,
         DoNothingIntentHandler,
-        AudioPlayerEventHandler,
+        DoNothingAudioPlayerHandler,
+        DoNothingPlaybackControllerHandler,
+        TimerStopPlaybackControllerHandler,
+        TimerRestartPlaybackControllerHandler,
         SessionEndedRequestHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(
         ErrorHandler,
     )
-    //   .addRequestInterceptors(RequestLog)
+    //.addRequestInterceptors(RequestLog)
     .lambda();
