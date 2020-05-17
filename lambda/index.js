@@ -9,14 +9,14 @@ const audioMetaData = {
     "art": {
         "sources": [
             {
-                "url": "https://uemuram.github.io/alexa-stopwatch/icon512.png"
+                "url": "https://uemuram.github.io/alexa-stopwatch/audio_art.png"
             }
         ]
     },
     "backgroundImage": {
         "sources": [
             {
-                "url": "https://uemuram.github.io/alexa-stopwatch/icon512.png"
+                "url": "https://uemuram.github.io/alexa-stopwatch/audio_backgroundImage.png"
             }
         ]
     }
