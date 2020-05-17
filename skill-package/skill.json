@@ -3,20 +3,30 @@
     "publishingInformation": {
       "locales": {
         "ja-JP": {
-          "summary": "Sample Short Description",
+          "summary": "声で計測するシンプルなストップウォッチです。",
           "examplePhrases": [
-            "Alexa open hello world",
-            "hello",
-            "help"
+            "アレクサ、シンプルストップウォッチを開いて"
           ],
           "name": "シンプルストップウォッチ",
-          "description": "Sample Full Description"
+          "keywords": [
+            "ストップウォッチ",
+            "タイマー",
+            "時間",
+            "計測",
+            "時間計測",
+            "時計"
+          ],
+          "smallIconUri": "https://uemuram.github.io/alexa-stopwatch/icon108.png",
+          "largeIconUri": "https://uemuram.github.io/alexa-stopwatch/icon512.png",
+          "description": "シンプルなストップウォッチスキルです。最大1時間の計測ができます。\n\n「アレクサ、シンプルストップウォッチを開いて」でスキルを開くと、カウント音とともに時間計測が始まります。\n計測中は1分ごとに経過時間を読み上げます。\n\n※「ストップウォッチ」などの名称で定型アクションに登録しておくと、\n「アレクサ、ストップウォッチ」だけですぐに計測を開始できて便利です。\n\n\nカウント音が流れているときに「アレクサ、ストップ」「アレクサ、止めて」「アレクサ、停止」などのように呼び掛けると\n計測が停止し、それまでの経過時間を読み上げます。\n停止後、「アレクサ、再開」で計測を再開します。\n\n時間をリセットして最初から計測する場合は、もう一度「アレクサ、シンプルストップウォッチを開いて」と呼びかけてください。\n\n\n※他のスキルなどでカウント音が止まっている間は計測時間は進みません。\n※他の音楽が再生された場合は計測がキャンセルされます。"
         }
       },
-      "isAvailableWorldwide": true,
-      "testingInstructions": "Sample Testing Instructions.",
-      "category": "KNOWLEDGE_AND_TRIVIA",
-      "distributionCountries": []
+      "isAvailableWorldwide": false,
+      "testingInstructions": "Alexa対応デバイス以外に必要なものはありません。フレーズ例にしたがって発話するだけでテストできます。",
+      "category": "ALARMS_AND_CLOCKS",
+      "distributionCountries": [
+        "JP"
+      ]
     },
     "apis": {
       "custom": {
@@ -30,6 +40,13 @@
         ]
       }
     },
-    "manifestVersion": "1.0"
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false
+    }
   }
 }
