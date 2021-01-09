@@ -68,7 +68,7 @@ const TimerStopIntentHandler = {
 
         // ミリ秒を結果に変換
         let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
-
+        const totalMsec = time;
         // タイマー音声内でまだ開始していなかったらキャンセル。
         if (time < 0) {
             return handlerInput.responseBuilder
@@ -84,9 +84,7 @@ const TimerStopIntentHandler = {
         time %= 60000;
         let s = Math.floor(time / 1000);
         time %= 1000;
-        let ms = ('00' + time).slice(-3);
-        let ms1 = ms.substring(0, 1);
-        let ms2 = ms.substring(1, 2);
+        let ms = ('000' + time).slice(-4).substring(1,3);
         let timeStr = '';
         if (h > 0) {
             timeStr = h + "時間" + m + "分" + s + "秒";
@@ -95,12 +93,13 @@ const TimerStopIntentHandler = {
         } else {
             timeStr = s + "秒";
         }
-        const msReading = {
-            "0": "れー", "1": "いち", "2": "にー", "3": "さん", "4": "よん",
-            "5": "ごー", "6": "ろく", "7": "なな", "8": "はち", "9": "きゅう",
-        }
-        let speechStr = timeStr + msReading[ms1] + msReading[ms2] + "です。";
-        let cardStr = timeStr + ms1 + ms2;
+        const speechStr = `
+            <speak>
+                ${timeStr}<say-as interpret-as="digits">${ms}</say-as>です。
+            </speak>
+        `;
+        let cardStr = timeStr + ms;
+        console.log(`タイマー停止 : ${totalMsec}(${cardStr})`);
 
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
