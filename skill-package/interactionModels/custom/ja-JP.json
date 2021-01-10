@@ -42,6 +42,19 @@
                     ]
                 },
                 {
+                    "name": "TimerStartIntent",
+                    "samples": [
+                        "計測して",
+                        "計測開始",
+                        "時間計って",
+                        "時間を計って"
+                    ]
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+                {
                     "name": "AMAZON.NoIntent",
                     "samples": []
                 },

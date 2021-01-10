@@ -2,6 +2,7 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
+
 const timerSoundUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_1h.mp3';
 const audioMetaData = {
     "title": "計測中",
@@ -63,6 +64,21 @@ const LaunchRequestHandler = {
         return await getStartTimerResponse(handlerInput);
     }
 };
+
+// 計測開始
+const TimerStartIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'TimerStartIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StartOverIntent');
+    },
+    async handle(handlerInput) {
+        return await getStartTimerResponse(handlerInput);
+    }
+};
+
+// ヘルプ
 const HelpIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -235,7 +251,6 @@ const BuyIntentHandler = {
 
 // TODO ヘルプに追記
 // TODO 音声を作成
-// TODO 音声分岐を作成
 // TODO カードをAPL化(画面対応ならAPL、そうじゃないならカードで使い分けとか)
 // TODO docsから不要なドキュメントを除去(承認された後)
 // TODO expansion_pack.jsonを間違ってコミットしたので消す
@@ -251,11 +266,10 @@ const BuyResponseHandler = {
     async handle(handlerInput) {
         console.log('購入処理から復帰');
 
-        return await getStartTimerResponse(handlerInput);
-
-        // return handlerInput.responseBuilder
-        //     .speak('購入の後処理です')
-        //     .getResponse();
+        return handlerInput.responseBuilder
+            .speak(`続いて計測を行いますか?`)
+            .reprompt('計測を行いますか?')
+            .getResponse();
     },
 };
 
@@ -400,6 +414,7 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         HelpIntentHandler,
+        TimerStartIntentHandler,
         TimerStopIntentHandler,
         TimerRestartIntentHandler,
         WhatCanIBuyIntentHandler,
