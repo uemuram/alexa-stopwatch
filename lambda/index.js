@@ -22,16 +22,45 @@ const audioMetaData = {
     }
 }
 
+// 拡張パック利用可能かどうかを判断する
+async function isEnitledExpansionPack(handlerInput) {
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+    // 製品情報を取得
+    const locale = handlerInput.requestEnvelope.request.locale;
+    const products = await ms.getInSkillProducts(locale);
+    // ステータスをチェック
+    const entitled = products.inSkillProducts[0].entitled;
+    console.log(`entitled : ${entitled}`);
+    if (entitled == 'ENTITLED') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// 計測開始レスポンスを返す
+async function getStartTimerResponse(handlerInput) {
+    const entitled = await isEnitledExpansionPack(handlerInput);
+    if (entitled) {
+        return handlerInput.responseBuilder
+            .speak('5時間の計測を開始します。')
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
+            .getResponse();
+    } else {
+        return handlerInput.responseBuilder
+            .speak('1時間の計測を開始します。')
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
+            .getResponse();
+    }
+}
+
 // スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    handle(handlerInput) {
-        return handlerInput.responseBuilder
-            .speak('計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
-            .getResponse();
+    async handle(handlerInput) {
+        return await getStartTimerResponse(handlerInput);
     }
 };
 const HelpIntentHandler = {
@@ -204,13 +233,12 @@ const BuyIntentHandler = {
 };
 
 
-// TODO 何を買えるかを実装
 // TODO ヘルプに追記
 // TODO 音声を作成
 // TODO 音声分岐を作成
 // TODO カードをAPL化(画面対応ならAPL、そうじゃないならカードで使い分けとか)
 // TODO docsから不要なドキュメントを除去(承認された後)
-
+// TODO expansion_pack.jsonを間違ってコミットしたので消す
 
 
 // 購入処理からの復帰
@@ -220,66 +248,14 @@ const BuyResponseHandler = {
             (handlerInput.requestEnvelope.request.name === 'Buy' ||
                 handlerInput.requestEnvelope.request.name === 'Upsell');
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.log('購入処理から復帰');
 
+        return await getStartTimerResponse(handlerInput);
 
-        //   const locale = handlerInput.requestEnvelope.request.locale;
-        //   const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-        //   const productId = handlerInput.requestEnvelope.request.payload.productId;
-
-        //   return ms.getInSkillProducts(locale).then(function handlePurchaseResponse(result) {
-        //     const product = result.inSkillProducts.filter(record => record.productId === productId);
-        //     console.log(`PRODUCT = ${JSON.stringify(product)}`);
-        //     if (handlerInput.requestEnvelope.request.status.code === '200') {
-        //       let speakOutput;
-        //       let repromptOutput;
-        //       let filteredFacts;
-        //       let categoryFacts = ALL_FACTS;
-        //       switch (handlerInput.requestEnvelope.request.payload.purchaseResult) {
-        //         case 'ACCEPTED':
-        //           if (product[0].referenceName !== 'all_access') categoryFacts = ALL_FACTS.filter(record => record.type === product[0].referenceName.replace('_pack', ''));
-
-        //           speakOutput = `You have unlocked the ${product[0].name}.  Here is your ${product[0].referenceName.replace('_pack', '').replace('all_access', '')} fact: ${getRandomFact(categoryFacts)} ${getRandomYesNoQuestion()}`;
-        //           repromptOutput = getRandomYesNoQuestion();
-        //           break;
-        //         case 'DECLINED':
-        //           if (handlerInput.requestEnvelope.request.name === 'Buy') {
-        //             // response when declined buy request
-        //             speakOutput = `Thanks for your interest in the ${product[0].name}.  Would you like another random fact?`;
-        //             repromptOutput = 'Would you like another random fact?';
-        //             break;
-        //           }
-        //           // response when declined upsell request
-        //           filteredFacts = getFilteredFacts(ALL_FACTS, handlerInput);
-        //           speakOutput = `OK.  Here's a random fact: ${getRandomFact(filteredFacts)} Would you like another random fact?`;
-        //           repromptOutput = 'Would you like another random fact?';
-        //           break;
-        //         case 'ALREADY_PURCHASED':
-        //           // may have access to more than what was asked for, but give them a random
-        //           // fact from the product they asked to buy
-        //           if (product[0].referenceName !== 'all_access') categoryFacts = ALL_FACTS.filter(record => record.type === product[0].referenceName.replace('_pack', ''));
-
-        //           speakOutput = `Here is your ${product[0].referenceName.replace('_pack', '').replace('all_access', '')} fact: ${getRandomFact(categoryFacts)} ${getRandomYesNoQuestion()}`;
-        //           repromptOutput = getRandomYesNoQuestion();
-        //           break;
-        //         default:
-        //           console.log(`unhandled purchaseResult: ${handlerInput.requestEnvelope.payload.purchaseResult}`);
-        //           speakOutput = `Something unexpected happened, but thanks for your interest in the ${product[0].name}.  Would you like another random fact?`;
-        //           repromptOutput = 'Would you like another random fact?';
-        //           break;
-        //       }
-        //       return handlerInput.responseBuilder
-        //         .speak(speakOutput)
-        //         .reprompt(repromptOutput)
-        //         .getResponse();
-        //     }
-        //     // Something failed.
-        //     console.log(`Connections.Response indicated failure. error: ${handlerInput.requestEnvelope.request.status.message}`);
-
-        return handlerInput.responseBuilder
-            .speak('購入の後処理です')
-            .getResponse();
+        // return handlerInput.responseBuilder
+        //     .speak('購入の後処理です')
+        //     .getResponse();
     },
 };
 
