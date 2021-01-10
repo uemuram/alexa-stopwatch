@@ -22,8 +22,6 @@ const audioMetaData = {
     }
 }
 
-const Speech = require('ssml-builder');
-
 // スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {

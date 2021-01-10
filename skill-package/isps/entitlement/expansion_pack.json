@@ -1,0 +1,50 @@
+{
+    "version": "1.0",
+    "type": "ENTITLEMENT",
+    "referenceName": "expansion_pack",
+    "publishingInformation": {
+      "locales": {
+        "ja-JP": {
+          "name": "歴史パック",
+          "summary": "歴史パックでは歴史に関するトリビアを聞くことができます。",
+          "description": "歴史パックでは歴史に関するトリビアを聞くことができます。",
+          "smallIconUri": "https://uemuram.github.io/alexa-stopwatch/icon108.png",
+          "largeIconUri": "https://uemuram.github.io/alexa-stopwatch/icon512.png",
+          "examplePhrases": [
+            "歴史パックを購入"
+          ],
+          "keywords": [
+            "歴史"
+          ],
+          "customProductPrompts": {
+            "purchasePromptDescription": "歴史パックでは歴史に関するトリビアを聞くことができます。",
+            "boughtCardDescription": "歴史パックを購入いただきありがとうございました。歴史トリビアをお楽しみください！"
+          }
+        }
+      },
+      "distributionCountries": [
+        "JP"
+      ],
+      "pricing": {
+        "amazon.co.jp": {
+          "releaseDate": "2019-03-01T00:00Z",
+          "defaultPriceListing": {
+            "price": 100,
+            "currency": "JPY"
+          }
+        }
+      },
+      "taxInformation": {
+        "category": "SOFTWARE"
+      }
+    },
+    "privacyAndCompliance": {
+      "locales": {
+        "ja-JP": {
+          "privacyPolicyUrl": "https://localhost/privacy.html"
+        }
+      }
+    },
+    "testingInstructions": "「歴史パックを購入」と言ってください。",
+    "purchasableState": "PURCHASABLE"
+  }
