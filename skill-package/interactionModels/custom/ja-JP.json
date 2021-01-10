@@ -4,12 +4,26 @@
             "invocationName": "シンプルストップウォッチ",
             "intents": [
                 {
+                    "name": "BuyIntent",
+                    "samples": [
+                        "拡張パックを買う",
+                        "拡張パックを購入",
+                        "拡張パックが欲しい",
+                        "拡張パックを申し込む",
+                        "拡張パックに課金する",
+                        "拡張パックをちょうだい",
+                        "拡張パックを下さい"
+                    ]
+                },
+                {
                     "name": "AMAZON.CancelIntent",
                     "samples": []
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": ["ヘルプ"]
+                    "samples": [
+                        "ヘルプ"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",
@@ -31,5 +45,4 @@
             "types": []
         }
     }
-  }
-  
+}

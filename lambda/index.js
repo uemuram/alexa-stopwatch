@@ -2,21 +2,21 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
-const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+const timerSoundUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_1h.mp3';
 const audioMetaData = {
     "title": "計測中",
     "subtitle": "「アレクサ、ストップ」で停止",
     "art": {
         "sources": [
             {
-                "url": "https://uemuram.github.io/alexa-stopwatch/audio_art.png"
+                "url": "https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/audio_art.png"
             }
         ]
     },
     "backgroundImage": {
         "sources": [
             {
-                "url": "https://uemuram.github.io/alexa-stopwatch/audio_backgroundImage.png"
+                "url": "https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/audio_backgroundImage.png"
             }
         ]
     }
@@ -24,6 +24,7 @@ const audioMetaData = {
 
 const Speech = require('ssml-builder');
 
+// スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
@@ -84,7 +85,7 @@ const TimerStopIntentHandler = {
         time %= 60000;
         let s = Math.floor(time / 1000);
         time %= 1000;
-        let ms = ('000' + time).slice(-4).substring(1,3);
+        let ms = ('000' + time).slice(-4).substring(1, 3);
         let timeStr = '';
         if (h > 0) {
             timeStr = h + "時間" + m + "分" + s + "秒";
@@ -104,7 +105,7 @@ const TimerStopIntentHandler = {
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speechStr)
-            .withSimpleCard('シンプルストップウォッチ : 計測結果', cardStr)
+            .withSimpleCard('計測結果', cardStr)
             .getResponse();
     }
 };
@@ -126,6 +127,130 @@ const TimerRestartIntentHandler = {
             .getResponse();
     }
 };
+
+// 拡張パック購入
+const BuyIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+            handlerInput.requestEnvelope.request.intent.name === 'BuyIntent';
+    },
+    async handle(handlerInput) {
+        console.log('購入処理');
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        // 製品情報を取得
+        const locale = handlerInput.requestEnvelope.request.locale;
+        const products = await ms.getInSkillProducts(locale);
+        console.log(products);
+
+        // ステータスをチェック
+        product = products.inSkillProducts[0];
+        const productId = product.productId;
+        const entitled = product.entitled;
+        console.log(`productId : ${productId}`);
+        console.log(`entitled : ${entitled}`);
+
+        // Alexa標準の購入処理に進む
+        return handlerInput.responseBuilder
+            .addDirective({
+                type: 'Connections.SendRequest',
+                name: 'Buy',
+                payload: {
+                    InSkillProduct: {
+                        productId: productId,
+                    },
+                },
+                token: 'correlationToken',
+            })
+            .getResponse();
+    },
+};
+
+
+// TODO 何を買えるかを実装
+// TODO ヘルプに追記
+// TODO 音声を作成
+// TODO 音声分岐を作成
+// TODO 音声をCloudFrontに置く?
+
+// 購入処理から戻ってきた場合
+const BuyResponseHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+            (handlerInput.requestEnvelope.request.name === 'Buy' ||
+                handlerInput.requestEnvelope.request.name === 'Upsell');
+    },
+    handle(handlerInput) {
+        console.log('購入処理から復帰');
+
+
+        //   const locale = handlerInput.requestEnvelope.request.locale;
+        //   const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+        //   const productId = handlerInput.requestEnvelope.request.payload.productId;
+
+        //   return ms.getInSkillProducts(locale).then(function handlePurchaseResponse(result) {
+        //     const product = result.inSkillProducts.filter(record => record.productId === productId);
+        //     console.log(`PRODUCT = ${JSON.stringify(product)}`);
+        //     if (handlerInput.requestEnvelope.request.status.code === '200') {
+        //       let speakOutput;
+        //       let repromptOutput;
+        //       let filteredFacts;
+        //       let categoryFacts = ALL_FACTS;
+        //       switch (handlerInput.requestEnvelope.request.payload.purchaseResult) {
+        //         case 'ACCEPTED':
+        //           if (product[0].referenceName !== 'all_access') categoryFacts = ALL_FACTS.filter(record => record.type === product[0].referenceName.replace('_pack', ''));
+
+        //           speakOutput = `You have unlocked the ${product[0].name}.  Here is your ${product[0].referenceName.replace('_pack', '').replace('all_access', '')} fact: ${getRandomFact(categoryFacts)} ${getRandomYesNoQuestion()}`;
+        //           repromptOutput = getRandomYesNoQuestion();
+        //           break;
+        //         case 'DECLINED':
+        //           if (handlerInput.requestEnvelope.request.name === 'Buy') {
+        //             // response when declined buy request
+        //             speakOutput = `Thanks for your interest in the ${product[0].name}.  Would you like another random fact?`;
+        //             repromptOutput = 'Would you like another random fact?';
+        //             break;
+        //           }
+        //           // response when declined upsell request
+        //           filteredFacts = getFilteredFacts(ALL_FACTS, handlerInput);
+        //           speakOutput = `OK.  Here's a random fact: ${getRandomFact(filteredFacts)} Would you like another random fact?`;
+        //           repromptOutput = 'Would you like another random fact?';
+        //           break;
+        //         case 'ALREADY_PURCHASED':
+        //           // may have access to more than what was asked for, but give them a random
+        //           // fact from the product they asked to buy
+        //           if (product[0].referenceName !== 'all_access') categoryFacts = ALL_FACTS.filter(record => record.type === product[0].referenceName.replace('_pack', ''));
+
+        //           speakOutput = `Here is your ${product[0].referenceName.replace('_pack', '').replace('all_access', '')} fact: ${getRandomFact(categoryFacts)} ${getRandomYesNoQuestion()}`;
+        //           repromptOutput = getRandomYesNoQuestion();
+        //           break;
+        //         default:
+        //           console.log(`unhandled purchaseResult: ${handlerInput.requestEnvelope.payload.purchaseResult}`);
+        //           speakOutput = `Something unexpected happened, but thanks for your interest in the ${product[0].name}.  Would you like another random fact?`;
+        //           repromptOutput = 'Would you like another random fact?';
+        //           break;
+        //       }
+        //       return handlerInput.responseBuilder
+        //         .speak(speakOutput)
+        //         .reprompt(repromptOutput)
+        //         .getResponse();
+        //     }
+        //     // Something failed.
+        //     console.log(`Connections.Response indicated failure. error: ${handlerInput.requestEnvelope.request.status.message}`);
+
+        return handlerInput.responseBuilder
+            .speak('購入の後処理です')
+            .getResponse();
+    },
+};
+
+
+
+
+
+
+
+
 
 // そのほかのオーディオ関連発話を拾うハンドラ(特に何もしない)
 const DoNothingIntentHandler = {
@@ -249,15 +374,16 @@ const ErrorHandler = {
 };
 
 
-// // リクエストインターセプター(エラー調査用)
-// const RequestLog = {
-//     process(handlerInput) {
-//         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-//         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
-//         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
-//         return;
-//     }
-// };
+// リクエストインターセプター(エラー調査用)
+// TODO 無効にする
+const RequestLog = {
+    process(handlerInput) {
+        //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+        console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
+        console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
+        return;
+    }
+};
 
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
@@ -269,6 +395,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         TimerStopIntentHandler,
         TimerRestartIntentHandler,
+        BuyIntentHandler,
+        BuyResponseHandler,
         DoNothingIntentHandler,
         DoNothingAudioPlayerHandler,
         DoNothingPlaybackControllerHandler,
@@ -280,5 +408,6 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addErrorHandlers(
         ErrorHandler,
     )
-    //.addRequestInterceptors(RequestLog)
+    .withApiClient(new Alexa.DefaultApiClient())
+    .addRequestInterceptors(RequestLog)
     .lambda();
