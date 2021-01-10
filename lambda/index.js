@@ -78,27 +78,6 @@ const TimerStartIntentHandler = {
     }
 };
 
-// ヘルプ
-const HelpIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
-    },
-    handle(handlerInput) {
-        const speakOutput = ''
-            + 'シンプルなストップウォッチスキルです。最大1時間の計測ができます。'
-            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
-            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
-            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
-            + '新たに計測を始める場合は、もう一度スキルを起動してください。'
-            ;
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
-    }
-};
-
 // タイマー停止
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
@@ -252,6 +231,7 @@ const BuyIntentHandler = {
 // TODO ヘルプに追記
 // TODO 音声を作成
 // TODO カードをAPL化(画面対応ならAPL、そうじゃないならカードで使い分けとか)
+
 // TODO docsから不要なドキュメントを除去(承認された後)
 // TODO expansion_pack.jsonを間違ってコミットしたので消す
 
@@ -355,6 +335,29 @@ const SessionEndedRequestHandler = {
     handle(handlerInput) {
         // Any cleanup logic goes here.
         return handlerInput.responseBuilder.getResponse();
+    }
+};
+
+// ヘルプ
+const HelpIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
+    },
+    async handle(handlerInput) {
+        let speakOutput = ''
+            + 'シンプルなストップウォッチスキルです。'
+            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
+            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
+            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
+            + '新たに計測を始める場合は、「アレクサ、最初から」と言ってください。'
+            + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。'
+            + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パックを購入」のように言ってください。'
+            ;
+            
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
     }
 };
 
