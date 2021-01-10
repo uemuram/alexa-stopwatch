@@ -60,8 +60,7 @@ const HelpIntentHandler = {
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
     handle(handlerInput) {
@@ -99,8 +98,11 @@ const TimerStopIntentHandler = {
                 ${timeStr}<say-as interpret-as="digits">${ms}</say-as>です。
             </speak>
         `;
-        let cardStr = timeStr + ms;
-        console.log(`タイマー停止 : ${totalMsec}(${cardStr})`);
+        console.log(`タイマー停止 : ${totalMsec}(${timeStr + ms})`);
+
+        const cardStr = `
+            ${timeStr + ms}
+        `;
 
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
@@ -128,11 +130,47 @@ const TimerRestartIntentHandler = {
     }
 };
 
-// 拡張パック購入
+// 何を購入できるかの説明
+const WhatCanIBuyIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+            Alexa.getIntentName(handlerInput.requestEnvelope) === 'WhatCanIBuyIntent';
+    },
+    handle(handlerInput) {
+        console.log('商品説明');
+
+        return handlerInput.responseBuilder
+            .speak(`
+                このスキルでは、拡張パックを購入することができます。
+                拡張パックを利用すると最大5時間までの計測ができるようになります。
+                購入する場合は、「拡張パックを購入」のように言ってください。どうしますか?
+            `)
+            .reprompt('どうしますか？')
+            .getResponse();
+    },
+};
+
+// ユーザから何もしない意思を示されたとき(購入しない、計測再開しないなど)
+const DoNothingHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'DontBuyIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent');
+    },
+    handle(handlerInput) {
+        console.log('何もしない');
+        return handlerInput.responseBuilder
+            .speak('わかりました。スキルを終了します。')
+            .getResponse();
+    },
+};
+
+// 購入処理
 const BuyIntentHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === 'BuyIntent';
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+            Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuyIntent';
     },
     async handle(handlerInput) {
         console.log('購入処理');
@@ -172,12 +210,15 @@ const BuyIntentHandler = {
 // TODO ヘルプに追記
 // TODO 音声を作成
 // TODO 音声分岐を作成
-// TODO 音声をCloudFrontに置く?
+// TODO カードをAPL化(画面対応ならAPL、そうじゃないならカードで使い分けとか)
+// TODO docsから不要なドキュメントを除去(承認された後)
 
-// 購入処理から戻ってきた場合
+
+
+// 購入処理からの復帰
 const BuyResponseHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Connections.Response' &&
             (handlerInput.requestEnvelope.request.name === 'Buy' ||
                 handlerInput.requestEnvelope.request.name === 'Upsell');
     },
@@ -243,14 +284,6 @@ const BuyResponseHandler = {
             .getResponse();
     },
 };
-
-
-
-
-
-
-
-
 
 // そのほかのオーディオ関連発話を拾うハンドラ(特に何もしない)
 const DoNothingIntentHandler = {
@@ -395,6 +428,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         HelpIntentHandler,
         TimerStopIntentHandler,
         TimerRestartIntentHandler,
+        WhatCanIBuyIntentHandler,
+        DoNothingHandler,
         BuyIntentHandler,
         BuyResponseHandler,
         DoNothingIntentHandler,
