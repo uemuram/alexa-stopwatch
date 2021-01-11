@@ -20,12 +20,29 @@
                 "items": [
                     {
                         "type": "Text",
-                        "text": "${data.textStr}",
-                        "fontSize": "16dp",
-                        "paddingTop": "12dp",
-                        "paddingBottom": "12dp",
-                        "height": "32dp",
-                        "width": "300dp"
+                        "text": "${data.timerStr}",
+                        "fontSize": "8vw"
+                    },
+                    {
+                        "type": "Text",
+                        "text": "TIPS",
+                        "fontSize": "4vw",
+                        "paddingTop" : "10vh"
+                    },
+                    {
+                        "type": "Text",
+                        "text": "・計測を再開　：「アレクサ、再開」",
+                        "fontSize": "2.9vw"
+                    },
+                    {
+                        "type": "Text",
+                        "text": "・最初から計測：「アレクサ、最初から」",
+                        "fontSize": "2.9vw"
+                    },
+                    {
+                        "type": "Text",
+                        "text": "・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」",
+                        "fontSize": "2.9vw"
                     }
                 ],
                 "height": "100%",

@@ -86,6 +86,7 @@ function getTimerStr(time) {
         hhmmss = s + "秒";
     }
     return {
+        all: hhmmss + ms,
         hhmmss: hhmmss,
         ms: ms
     }
@@ -142,13 +143,15 @@ const TimerStopIntentHandler = {
                 ${timerStr.hhmmss}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
             </speak>
         `;
-        console.log(`タイマー停止 : ${totalMsec}(${timerStr.hhmmss + timerStr.ms})`);
+        console.log(`タイマー停止 : ${totalMsec}(${timerStr.all})`);
         const cardStr = `
-            ${timerStr.hhmmss + timerStr.ms}
+            ${timerStr.all}
         `;
 
+        // 画面表示用のAPLを整備
         let aplDocument = require('./apl/TemplateDocument.json');
         let aplDataSource = require('./apl/TemplateDataSource.json');
+        aplDataSource.data.timerStr = timerStr.all;
 
         util.setState(handlerInput, TIMER_STOPPING);
         return handlerInput.responseBuilder
