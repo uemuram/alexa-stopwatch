@@ -79,6 +79,11 @@ class CommonUtil {
         return parameter;
     }
 
+    // オブジェクトのディープコピー
+    deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
     // 同じ日付けかどうか判定する
     isSameDate(date1, date2) {
         if (

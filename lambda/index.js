@@ -124,8 +124,11 @@ const TimerStopIntentHandler = {
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+
+        // 拡張パック購入状況をチェック
+        const entitled = await isEnitledExpansionPack(handlerInput);
 
         // ミリ秒を結果に変換
         let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
@@ -144,20 +147,34 @@ const TimerStopIntentHandler = {
             </speak>
         `;
         console.log(`タイマー停止 : ${totalMsec}(${timerStr.all})`);
-        const cardStr = `
-            ${timerStr.all}
-        `;
+
+        // カード情報を整備
+        const cardTitle = timerStr.all;
+        let cardBody = ""
+            + "TIPS\n"
+            + "・計測を再開　：「アレクサ、再開」\n"
+            + "・最初から計測：「アレクサ、最初から」";
+        // 未購入のときのみ拡張パックの案内を付与
+        if (!entitled) {
+            cardBody += '\n・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」';
+        }
 
         let response = handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speechStr)
-            .withSimpleCard('計測結果', cardStr);
+            .withSimpleCard(cardTitle, cardBody);
 
         // 画面利用可能であれば画面を追加
         if (handlerInput.requestEnvelope.context.Viewport) {
-            let aplDocument = require('./apl/TemplateDocument.json');
+            let aplDocument = util.deepCopy(require('./apl/TemplateDocument.json'));
             let aplDataSource = require('./apl/TemplateDataSource.json');
             aplDataSource.data.timerStr = timerStr.all;
+            // 購入済みなら拡張パックの案内を外す
+            if (entitled) {
+                //if (aplDocument.mainTemplate.items[0].items.length == 5) {
+                aplDocument.mainTemplate.items[0].items.pop();
+                //}
+            }
             response = response.addDirective({
                 type: 'Alexa.Presentation.APL.RenderDocument',
                 version: '1.4',
