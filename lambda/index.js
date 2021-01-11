@@ -240,7 +240,7 @@ const DoNothingHandler = {
 
         util.setState(handlerInput, SKILL_END);
         return handlerInput.responseBuilder
-            .speak('わかりました。スキルを終了します。')
+            .speak('またご利用ください。')
             .getResponse();
     },
 };
