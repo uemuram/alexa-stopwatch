@@ -67,6 +67,30 @@ async function getStartTimerResponse(handlerInput) {
     }
 }
 
+// ミリ秒を読み上げ可能な時間形式にする
+function getTimerStr(time) {
+    time = Math.round(time / 10) * 10;
+    let h = Math.floor(time / 3600000);
+    time %= 3600000
+    let m = Math.floor(time / 60000);
+    time %= 60000;
+    let s = Math.floor(time / 1000);
+    time %= 1000;
+    let ms = ('000' + time).slice(-4).substring(1, 3);
+    let hhmmss = '';
+    if (h > 0) {
+        hhmmss = h + "時間" + m + "分" + s + "秒";
+    } else if (m > 0) {
+        hhmmss = m + "分" + s + "秒";
+    } else {
+        hhmmss = s + "秒";
+    }
+    return {
+        hhmmss: hhmmss,
+        ms: ms
+    }
+}
+
 // スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -112,32 +136,15 @@ const TimerStopIntentHandler = {
                 .speak('停止します。')
                 .getResponse();
         }
-
-        time = Math.round(time / 10) * 10;
-        let h = Math.floor(time / 3600000);
-        time %= 3600000
-        let m = Math.floor(time / 60000);
-        time %= 60000;
-        let s = Math.floor(time / 1000);
-        time %= 1000;
-        let ms = ('000' + time).slice(-4).substring(1, 3);
-        let timeStr = '';
-        if (h > 0) {
-            timeStr = h + "時間" + m + "分" + s + "秒";
-        } else if (m > 0) {
-            timeStr = m + "分" + s + "秒";
-        } else {
-            timeStr = s + "秒";
-        }
+        const timerStr = getTimerStr(time);
         const speechStr = `
             <speak>
-                ${timeStr}<say-as interpret-as="digits">${ms}</say-as>です。
+                ${timerStr.hhmmss}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
             </speak>
         `;
-        console.log(`タイマー停止 : ${totalMsec}(${timeStr + ms})`);
-
+        console.log(`タイマー停止 : ${totalMsec}(${timerStr.hhmmss + timerStr.ms})`);
         const cardStr = `
-            ${timeStr + ms}
+            ${timerStr.hhmmss + timerStr.ms}
         `;
 
         util.setState(handlerInput, TIMER_STOPPING);
