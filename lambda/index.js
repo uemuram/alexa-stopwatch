@@ -164,7 +164,7 @@ const WhatCanIBuyIntentHandler = {
         return handlerInput.responseBuilder
             .speak(`
                 このスキルでは、拡張パックを購入することができます。
-                拡張パックを利用すると最大5時間までの計測ができるようになります。
+                拡張パックを利用すると、計測時間を最大5時間に延ばすことができます。
                 購入する場合は、「拡張パックを購入」のように言ってください。どうしますか?
             `)
             .reprompt('どうしますか？')
