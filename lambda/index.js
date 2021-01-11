@@ -463,15 +463,14 @@ const ErrorHandler = {
 
 
 // リクエストインターセプター(エラー調査用)
-// TODO 無効にする
-const RequestLog = {
-    process(handlerInput) {
-        //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-        console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
-        console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
-        return;
-    }
-};
+// const RequestLog = {
+//     process(handlerInput) {
+//         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+//         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
+//         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
+//         return;
+//     }
+// };
 
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
@@ -500,5 +499,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         ErrorHandler,
     )
     .withApiClient(new Alexa.DefaultApiClient())
-    .addRequestInterceptors(RequestLog)
+    // .addRequestInterceptors(RequestLog)
     .lambda();
