@@ -147,10 +147,19 @@ const TimerStopIntentHandler = {
             ${timerStr.hhmmss + timerStr.ms}
         `;
 
+        let aplDocument = require('./apl/TemplateDocument.json');
+        let aplDataSource = require('./apl/TemplateDataSource.json');
+
         util.setState(handlerInput, TIMER_STOPPING);
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speechStr)
+            .addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.4',
+                document: aplDocument,
+                datasources: aplDataSource
+            })
             .withSimpleCard('計測結果', cardStr)
             .getResponse();
     }

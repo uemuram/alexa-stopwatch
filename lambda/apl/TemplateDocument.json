@@ -1,0 +1,36 @@
+{
+    "type": "APL",
+    "version": "1.4",
+    "settings": {},
+    "theme": "dark",
+    "import": [],
+    "resources": [],
+    "styles": {},
+    "onMount": [],
+    "graphics": {},
+    "commands": {},
+    "layouts": {},
+    "mainTemplate": {
+        "parameters": [
+            "data"
+        ],
+        "items": [
+            {
+                "type": "Container",
+                "items": [
+                    {
+                        "type": "Text",
+                        "text": "${data.textStr}",
+                        "fontSize": "16dp",
+                        "paddingTop": "12dp",
+                        "paddingBottom": "12dp",
+                        "height": "32dp",
+                        "width": "300dp"
+                    }
+                ],
+                "height": "100%",
+                "width": "100%"
+            }
+        ]
+    }
+}
