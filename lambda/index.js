@@ -171,9 +171,8 @@ const TimerStopIntentHandler = {
             aplDataSource.data.timerStr = timerStr.all;
             // 購入済みなら拡張パックの案内を外す
             if (entitled) {
-                //if (aplDocument.mainTemplate.items[0].items.length == 5) {
                 aplDocument.mainTemplate.items[0].items.pop();
-                //}
+                aplDocument.mainTemplate.items[1].items.pop();
             }
             response = response.addDirective({
                 type: 'Alexa.Presentation.APL.RenderDocument',
