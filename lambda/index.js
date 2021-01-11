@@ -148,23 +148,26 @@ const TimerStopIntentHandler = {
             ${timerStr.all}
         `;
 
-        // 画面表示用のAPLを整備
-        let aplDocument = require('./apl/TemplateDocument.json');
-        let aplDataSource = require('./apl/TemplateDataSource.json');
-        aplDataSource.data.timerStr = timerStr.all;
-
-        util.setState(handlerInput, TIMER_STOPPING);
-        return handlerInput.responseBuilder
+        let response = handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speechStr)
-            .addDirective({
+            .withSimpleCard('計測結果', cardStr);
+
+        // 画面利用可能であれば画面を追加
+        if (handlerInput.requestEnvelope.context.Viewport) {
+            let aplDocument = require('./apl/TemplateDocument.json');
+            let aplDataSource = require('./apl/TemplateDataSource.json');
+            aplDataSource.data.timerStr = timerStr.all;
+            response = response.addDirective({
                 type: 'Alexa.Presentation.APL.RenderDocument',
                 version: '1.4',
                 document: aplDocument,
                 datasources: aplDataSource
             })
-            .withSimpleCard('計測結果', cardStr)
-            .getResponse();
+        }
+
+        util.setState(handlerInput, TIMER_STOPPING);
+        return response.getResponse();
     }
 };
 

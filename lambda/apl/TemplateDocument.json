@@ -21,7 +21,7 @@
                     {
                         "type": "Text",
                         "text": "${data.timerStr}",
-                        "fontSize": "8vw"
+                        "fontSize": "10vw"
                     },
                     {
                         "type": "Text",
