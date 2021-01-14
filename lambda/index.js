@@ -15,9 +15,10 @@ const SKILL_END = 5;         // スキル終了
 
 
 // オーディオ関連データ
+// TODO URLを環境変数からとるようにしたい(cloudfrontやめるときとか、開発用とか)
 const timerSoundUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_1h.mp3';
 const audioMetaData = {
-    "title": "計測中",
+    "title": "計測",
     "subtitle": "「アレクサ、ストップ」で停止",
     "art": {
         "sources": [
@@ -207,13 +208,31 @@ const TimerRestartIntentHandler = {
 };
 
 // 何を購入できるかの説明
+// TODO 最初1時間、という要素をどこかに入れるべきか・・・
 const WhatCanIBuyIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
             Alexa.getIntentName(handlerInput.requestEnvelope) === 'WhatCanIBuyIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.log('商品説明');
+
+        // 拡張パック購入状況をチェック
+        const entitled = await isEnitledExpansionPack(handlerInput);
+
+        // 購入済み
+        if (entitled) {
+            util.setState(handlerInput, CONFIRM_RUN_TIMER);
+            return handlerInput.responseBuilder
+                .speak(`
+                    このスキルでは、拡張パックを購入することができます。
+                    拡張パックを利用すると、計測時間を最大5時間に延ばすことができます。
+                    拡張パックはすでにお持ちです。
+                    続いて計測を行いますか?
+                `)
+                .reprompt('計測を行いますか?')
+                .getResponse();
+        };
 
         util.setState(handlerInput, CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
@@ -294,6 +313,10 @@ const BuyIntentHandler = {
 
 // TODO docsから不要なドキュメントを除去(承認された後)
 // TODO expansion_pack.jsonを間違ってコミットしたので消す
+// TODO アレクサ、終了をAPLで案内?
+// TODO ShodEndSessionをtrueにすると何か変わる?
+// TODO 単語にマッチしないで購入処理に入ったら何もしないようにできるか
+// TODO 外だしするなら環境変数ではなくパラメータストアかな
 
 
 // 購入処理からの復帰
