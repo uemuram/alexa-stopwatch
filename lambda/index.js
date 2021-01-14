@@ -307,15 +307,9 @@ const BuyIntentHandler = {
 };
 
 
-// TODO ヘルプに追記
 // TODO 音声を作成
-// TODO カードをAPL化(画面対応ならAPL、そうじゃないならカードで使い分けとか)
-
 // TODO docsから不要なドキュメントを除去(承認された後)
 // TODO expansion_pack.jsonを間違ってコミットしたので消す
-// TODO アレクサ、終了をAPLで案内?
-// TODO ShodEndSessionをtrueにすると何か変わる?
-// TODO 単語にマッチしないで購入処理に入ったら何もしないようにできるか
 // TODO 外だしするなら環境変数ではなくパラメータストアかな
 
 
