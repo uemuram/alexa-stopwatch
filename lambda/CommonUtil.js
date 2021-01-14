@@ -60,6 +60,22 @@ class CommonUtil {
         return slotInfo;
     }
 
+    // スロットにインテント名 & スロット名に厳密にマッチしたかを判定する
+    checkStrictSlotMatch(handlerInput, intentName, slotName) {
+        // インテント名のチェック
+        if (!Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' ||
+            !Alexa.getIntentName(handlerInput.requestEnvelope) === intentName) {
+            return false;
+        }
+        // スロットの取得ステータスをチェック
+        const slotInfo = this.getSlotInfo(handlerInput, slotName);
+        if (slotInfo.statusCode && slotInfo.statusCode == 'ER_SUCCESS_MATCH') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // パラメータストアから値を取得(再利用のために取得後にセッションに格納)
     // 非同期処理を含むので、呼び出し元ではawaitを付けて呼び出すこと
     async getParameterFromSSM(handlerInput, key) {

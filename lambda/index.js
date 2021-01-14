@@ -108,7 +108,7 @@ const LaunchRequestHandler = {
 const TimerStartIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'TimerStartIntent'
+            && (util.checkStrictSlotMatch(handlerInput, 'TimerStartIntent', 'TimerStartOrder')
                 || (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent' && util.checkState(handlerInput, CONFIRM_RUN_TIMER))
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StartOverIntent');
     },
@@ -212,7 +212,7 @@ const TimerRestartIntentHandler = {
 const WhatCanIBuyIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
-            Alexa.getIntentName(handlerInput.requestEnvelope) === 'WhatCanIBuyIntent';
+            util.checkStrictSlotMatch(handlerInput, 'WhatCanIBuyIntent', 'WhatCanIBuyOrder');
     },
     async handle(handlerInput) {
         console.log('商品説明');
@@ -250,7 +250,7 @@ const WhatCanIBuyIntentHandler = {
 const DoNothingHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'DontBuyIntent'
+            && (util.checkStrictSlotMatch(handlerInput, 'DontBuyIntent', 'DontBuyOrder')
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent');
     },
@@ -268,7 +268,7 @@ const DoNothingHandler = {
 const BuyIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'BuyIntent'
+            && (util.checkStrictSlotMatch(handlerInput, 'BuyIntent', 'BuyOrder')
                 || (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent' && util.checkState(handlerInput, CONFIRM_PURCHASE))
             );
     },
@@ -436,7 +436,7 @@ const HelpIntentHandler = {
             + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
             + 'ストップ後に新たに計測を始める場合は、「アレクサ、最初から」と言ってください。'
             + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。'
-            + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パックを購入」のように言ってください。'
+            + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パック」、のように言ってください。'
             + '計測を行いますか?'
             ;
 
@@ -462,6 +462,7 @@ const IntentReflectorHandler = {
         console.log(intentName);
         return handlerInput.responseBuilder
             .speak(speakOutput)
+            .reprompt(speakOutput)
             .getResponse();
     }
 };
@@ -486,14 +487,14 @@ const ErrorHandler = {
 
 
 // リクエストインターセプター(エラー調査用)
-// const RequestLog = {
-//     process(handlerInput) {
-//         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-//         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
-//         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
-//         return;
-//     }
-// };
+const RequestLog = {
+    process(handlerInput) {
+        //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+        console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
+        console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
+        return;
+    }
+};
 
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
@@ -522,5 +523,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         ErrorHandler,
     )
     .withApiClient(new Alexa.DefaultApiClient())
-    // .addRequestInterceptors(RequestLog)
+    .addRequestInterceptors(RequestLog)
     .lambda();
