@@ -225,8 +225,7 @@ const WhatCanIBuyIntentHandler = {
             util.setState(handlerInput, CONFIRM_RUN_TIMER);
             return handlerInput.responseBuilder
                 .speak(`
-                    このスキルでは、拡張パックを購入することができます。
-                    拡張パックを利用すると、計測時間を最大5時間に延ばすことができます。
+                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
                     拡張パックはすでにお持ちです。
                     続いて計測を行いますか?
                 `)
@@ -237,8 +236,7 @@ const WhatCanIBuyIntentHandler = {
         util.setState(handlerInput, CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
             .speak(`
-                このスキルでは、拡張パックを購入することができます。
-                拡張パックを利用すると、計測時間を最大5時間に延ばすことができます。
+                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
                 購入処理に進みますか?
             `)
             .reprompt('購入処理に進みますか?')
@@ -260,6 +258,7 @@ const DoNothingHandler = {
         util.setState(handlerInput, SKILL_END);
         return handlerInput.responseBuilder
             .speak('またご利用ください。')
+            .addAudioPlayerStopDirective()
             .getResponse();
     },
 };
