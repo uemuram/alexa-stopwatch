@@ -309,7 +309,6 @@ const BuyIntentHandler = {
 
 // TODO 音声を作成
 // TODO docsから不要なドキュメントを除去(承認された後)
-// TODO expansion_pack.jsonを間違ってコミットしたので消す
 // TODO 外だしするなら環境変数ではなくパラメータストアかな
 
 
