@@ -8,10 +8,13 @@
   },
   "author": "Amazon Alexa",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uemuram/alexa-stopwatch.git"
+  },
   "dependencies": {
     "ask-sdk-core": "^2.6.0",
     "ask-sdk-model": "^1.18.0",
-    "aws-sdk": "^2.326.0",
-    "ssml-builder": "^0.4.3"
+    "aws-sdk": "^2.326.0"
   }
 }

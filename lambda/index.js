@@ -2,9 +2,23 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
-const timerSoundUrl = 'https://uemuram.github.io/alexa-stopwatch/timer.mp3';
+const CommonUtil = require('./CommonUtil.js');
+const util = new CommonUtil();
+
+// ステータス
+const TIMER_RUNNING = 0;     // タイマー実行中
+const TIMER_STOPPING = 1;    // タイマー停止中
+const CONFIRM_PURCHASE = 2;  // 購入確認中
+const UNDER_PURCHASE = 3;    // 購入処理中F
+const CONFIRM_RUN_TIMER = 4; // タイマー実行確認中
+const SKILL_END = 5;         // スキル終了
+
+
+// オーディオ関連データ
+const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
+const timerSoundUrl_300m = 'https://uemuram.github.io/alexa-stopwatch/timer_300m.mp3';
 const audioMetaData = {
-    "title": "計測中",
+    "title": "計測",
     "subtitle": "「アレクサ、ストップ」で停止",
     "art": {
         "sources": [
@@ -22,36 +36,91 @@ const audioMetaData = {
     }
 }
 
-const Speech = require('ssml-builder');
+// 拡張パック利用可能かどうかを判断する
+async function isEnitledExpansionPack(handlerInput) {
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+    // 製品情報を取得
+    const locale = handlerInput.requestEnvelope.request.locale;
+    const products = await ms.getInSkillProducts(locale);
+    // ステータスをチェック
+    const entitled = products.inSkillProducts[0].entitled;
+    console.log(`entitled : ${entitled}`);
+    if (entitled == 'ENTITLED') {
+        return true;
+    } else {
+        return false;
+    }
+}
 
+// 計測開始レスポンスを返す
+async function getStartTimerResponse(handlerInput, offset, message) {
+    const entitled = await isEnitledExpansionPack(handlerInput);
+
+    let response = handlerInput.responseBuilder;
+    if (message) {
+        response = response.speak(message);
+    }
+
+    if (entitled) {
+        console.log(`計測開始 : 300m (${offset}～)`);
+        return response
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_300m, 'token', offset, null, audioMetaData)
+            .getResponse();
+    } else {
+        console.log(`計測開始 : 60m (${offset}～)`);
+        return response
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_60m, 'token', offset, null, audioMetaData)
+            .getResponse();
+    }
+}
+
+// ミリ秒を読み上げ可能な時間形式にする
+function getTimerStr(time) {
+    time = Math.round(time / 10) * 10;
+    let h = Math.floor(time / 3600000);
+    time %= 3600000
+    let m = Math.floor(time / 60000);
+    time %= 60000;
+    let s = Math.floor(time / 1000);
+    time %= 1000;
+    let ms = ('000' + time).slice(-4).substring(1, 3);
+    let hhmmss = '';
+    if (h > 0) {
+        hhmmss = h + "時間" + m + "分" + s + "秒";
+    } else if (m > 0) {
+        hhmmss = m + "分" + s + "秒";
+    } else {
+        hhmmss = s + "秒";
+    }
+    return {
+        all: hhmmss + ms,
+        hhmmss: hhmmss,
+        ms: ms
+    }
+}
+
+// スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    handle(handlerInput) {
-        return handlerInput.responseBuilder
-            .speak('計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
-            .getResponse();
+    async handle(handlerInput) {
+        util.setState(handlerInput, TIMER_RUNNING);
+        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
 };
-const HelpIntentHandler = {
+
+// 計測開始
+const TimerStartIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
+            && (util.checkStrictSlotMatch(handlerInput, 'TimerStartIntent', 'TimerStartOrder')
+                || (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent' && util.checkState(handlerInput, CONFIRM_RUN_TIMER))
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StartOverIntent');
     },
-    handle(handlerInput) {
-        const speakOutput = ''
-            + 'シンプルなストップウォッチスキルです。最大1時間の計測ができます。'
-            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
-            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
-            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
-            + '新たに計測を始める場合は、もう一度スキルを起動してください。'
-            ;
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
+    async handle(handlerInput) {
+        util.setState(handlerInput, TIMER_RUNNING);
+        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
 };
 
@@ -59,16 +128,18 @@ const HelpIntentHandler = {
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent'
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+
+        // 拡張パック購入状況をチェック
+        const entitled = await isEnitledExpansionPack(handlerInput);
 
         // ミリ秒を結果に変換
         let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
-
+        const totalMsec = time;
         // タイマー音声内でまだ開始していなかったらキャンセル。
         if (time < 0) {
             return handlerInput.responseBuilder
@@ -76,37 +147,50 @@ const TimerStopIntentHandler = {
                 .speak('停止します。')
                 .getResponse();
         }
+        const timerStr = getTimerStr(time);
+        const speechStr = `
+            <speak>
+                ${timerStr.hhmmss}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
+            </speak>
+        `;
+        console.log(`タイマー停止 : ${totalMsec}(${timerStr.all})`);
 
-        time = Math.round(time / 10) * 10;
-        let h = Math.floor(time / 3600000);
-        time %= 3600000
-        let m = Math.floor(time / 60000);
-        time %= 60000;
-        let s = Math.floor(time / 1000);
-        time %= 1000;
-        let ms = ('00' + time).slice(-3);
-        let ms1 = ms.substring(0, 1);
-        let ms2 = ms.substring(1, 2);
-        let timeStr = '';
-        if (h > 0) {
-            timeStr = h + "時間" + m + "分" + s + "秒";
-        } else if (m > 0) {
-            timeStr = m + "分" + s + "秒";
-        } else {
-            timeStr = s + "秒";
+        // カード情報を整備
+        const cardTitle = timerStr.all;
+        let cardBody = ""
+            + "TIPS\n"
+            + "・計測を再開　：「アレクサ、再開」\n"
+            + "・最初から計測：「アレクサ、最初から」";
+        // 未購入のときのみ拡張パックの案内を付与
+        if (!entitled) {
+            cardBody += '\n・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」';
         }
-        const msReading = {
-            "0": "れー", "1": "いち", "2": "にー", "3": "さん", "4": "よん",
-            "5": "ごー", "6": "ろく", "7": "なな", "8": "はち", "9": "きゅう",
-        }
-        let speechStr = timeStr + msReading[ms1] + msReading[ms2] + "です。";
-        let cardStr = timeStr + ms1 + ms2;
 
-        return handlerInput.responseBuilder
+        let response = handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .speak(speechStr)
-            .withSimpleCard('シンプルストップウォッチ : 計測結果', cardStr)
-            .getResponse();
+            .withSimpleCard(cardTitle, cardBody);
+
+        // 画面利用可能であれば画面を追加
+        if (handlerInput.requestEnvelope.context.Viewport) {
+            let aplDocument = util.deepCopy(require('./apl/TemplateDocument.json'));
+            let aplDataSource = require('./apl/TemplateDataSource.json');
+            aplDataSource.data.timerStr = timerStr.all;
+            // 購入済みなら拡張パックの案内を外す
+            if (entitled) {
+                aplDocument.mainTemplate.items[0].items.pop();
+                aplDocument.mainTemplate.items[1].items.pop();
+            }
+            response = response.addDirective({
+                type: 'Alexa.Presentation.APL.RenderDocument',
+                version: '1.4',
+                document: aplDocument,
+                datasources: aplDataSource
+            })
+        }
+
+        util.setState(handlerInput, TIMER_STOPPING);
+        return response.getResponse();
     }
 };
 
@@ -116,16 +200,129 @@ const TimerRestartIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const token = audioPlayer.token;
         const offset = audioPlayer.offsetInMilliseconds;
 
-        return handlerInput.responseBuilder
-            .speak('計測を再開します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
-            .getResponse();
+        util.setState(handlerInput, TIMER_RUNNING);
+        return await getStartTimerResponse(handlerInput, offset, '計測を再開します。');
     }
+};
+
+// 何を購入できるかの説明
+const WhatCanIBuyIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+            util.checkStrictSlotMatch(handlerInput, 'WhatCanIBuyIntent', 'WhatCanIBuyOrder');
+    },
+    async handle(handlerInput) {
+        console.log('商品説明');
+
+        // 拡張パック購入状況をチェック
+        const entitled = await isEnitledExpansionPack(handlerInput);
+
+        // 購入済み
+        if (entitled) {
+            util.setState(handlerInput, CONFIRM_RUN_TIMER);
+            return handlerInput.responseBuilder
+                .speak(`
+                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
+                    拡張パックはすでにお持ちです。
+                    続いて計測を行いますか?
+                `)
+                .reprompt('計測を行いますか?')
+                .getResponse();
+        };
+
+        util.setState(handlerInput, CONFIRM_PURCHASE);
+        return handlerInput.responseBuilder
+            .speak(`
+                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
+                購入処理に進みますか?
+            `)
+            .reprompt('購入処理に進みますか?')
+            .getResponse();
+    },
+};
+
+// ユーザから何もしない意思を示されたとき(購入しない、計測再開しないなど)
+const DoNothingHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (util.checkStrictSlotMatch(handlerInput, 'DontBuyIntent', 'DontBuyOrder')
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent');
+    },
+    handle(handlerInput) {
+        console.log('何もしない');
+
+        util.setState(handlerInput, SKILL_END);
+        return handlerInput.responseBuilder
+            .speak('またご利用ください。')
+            .addAudioPlayerStopDirective()
+            .getResponse();
+    },
+};
+
+// 購入処理
+const BuyIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (util.checkStrictSlotMatch(handlerInput, 'BuyIntent', 'BuyOrder')
+                || (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent' && util.checkState(handlerInput, CONFIRM_PURCHASE))
+            );
+    },
+    async handle(handlerInput) {
+        console.log('購入処理');
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        // 製品情報を取得
+        const locale = handlerInput.requestEnvelope.request.locale;
+        const products = await ms.getInSkillProducts(locale);
+        console.log(products);
+
+        // ステータスをチェック
+        product = products.inSkillProducts[0];
+        const productId = product.productId;
+        const entitled = product.entitled;
+        console.log(`productId : ${productId}`);
+        console.log(`entitled : ${entitled}`);
+
+        // Alexa標準の購入処理に進む
+        util.setState(handlerInput, UNDER_PURCHASE);
+        return handlerInput.responseBuilder
+            .addDirective({
+                type: 'Connections.SendRequest',
+                name: 'Buy',
+                payload: {
+                    InSkillProduct: {
+                        productId: productId,
+                    },
+                },
+                token: 'correlationToken',
+            })
+            .getResponse();
+    },
+};
+
+// TODO docsから不要なドキュメントを除去(承認された後)
+// 購入処理からの復帰
+const BuyResponseHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Connections.Response' &&
+            (handlerInput.requestEnvelope.request.name === 'Buy' ||
+                handlerInput.requestEnvelope.request.name === 'Upsell');
+    },
+    async handle(handlerInput) {
+        console.log('購入処理から復帰');
+
+        util.setState(handlerInput, CONFIRM_RUN_TIMER);
+        return handlerInput.responseBuilder
+            .speak(`続いて計測を行いますか?`)
+            .reprompt('計測を行いますか?')
+            .getResponse();
+    },
 };
 
 // そのほかのオーディオ関連発話を拾うハンドラ(特に何もしない)
@@ -192,14 +389,10 @@ const TimerRestartPlaybackControllerHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PlayCommandIssued';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const token = audioPlayer.token;
         const offset = audioPlayer.offsetInMilliseconds;
-
-        return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
-            .getResponse();
+        return await getStartTimerResponse(handlerInput, offset, null);
     }
 };
 
@@ -210,6 +403,32 @@ const SessionEndedRequestHandler = {
     handle(handlerInput) {
         // Any cleanup logic goes here.
         return handlerInput.responseBuilder.getResponse();
+    }
+};
+
+// ヘルプ
+const HelpIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
+    },
+    async handle(handlerInput) {
+        let speakOutput = ''
+            + 'シンプルなストップウォッチスキルです。'
+            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
+            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
+            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
+            + 'ストップ後に新たに計測を始める場合は、「アレクサ、最初から」と言ってください。'
+            + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。'
+            + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パック」、のように言ってください。'
+            + '計測を行いますか?'
+            ;
+
+        util.setState(handlerInput, CONFIRM_RUN_TIMER);
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .reprompt('計測を行いますか?')
+            .getResponse();
     }
 };
 
@@ -227,6 +446,7 @@ const IntentReflectorHandler = {
         console.log(intentName);
         return handlerInput.responseBuilder
             .speak(speakOutput)
+            .reprompt(speakOutput)
             .getResponse();
     }
 };
@@ -250,15 +470,15 @@ const ErrorHandler = {
 };
 
 
-// // リクエストインターセプター(エラー調査用)
-// const RequestLog = {
-//     process(handlerInput) {
-//         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-//         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
-//         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
-//         return;
-//     }
-// };
+// リクエストインターセプター(エラー調査用)
+const RequestLog = {
+    process(handlerInput) {
+        //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+        console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
+        console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
+        return;
+    }
+};
 
 
 // The SkillBuilder acts as the entry point for your skill, routing all request and response
@@ -268,8 +488,13 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         HelpIntentHandler,
+        TimerStartIntentHandler,
         TimerStopIntentHandler,
         TimerRestartIntentHandler,
+        WhatCanIBuyIntentHandler,
+        DoNothingHandler,
+        BuyIntentHandler,
+        BuyResponseHandler,
         DoNothingIntentHandler,
         DoNothingAudioPlayerHandler,
         DoNothingPlaybackControllerHandler,
@@ -281,5 +506,6 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addErrorHandlers(
         ErrorHandler,
     )
-    //.addRequestInterceptors(RequestLog)
+    .withApiClient(new Alexa.DefaultApiClient())
+    .addRequestInterceptors(RequestLog)
     .lambda();
