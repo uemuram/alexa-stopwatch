@@ -9,7 +9,7 @@ const util = new CommonUtil();
 const TIMER_RUNNING = 0;     // タイマー実行中
 const TIMER_STOPPING = 1;    // タイマー停止中
 const CONFIRM_PURCHASE = 2;  // 購入確認中
-const UNDER_PURCHASE = 3;    // 購入処理中F
+const UNDER_PURCHASE = 3;    // 購入処理中
 const CONFIRM_RUN_TIMER = 4; // タイマー実行確認中
 const SKILL_END = 5;         // スキル終了
 
