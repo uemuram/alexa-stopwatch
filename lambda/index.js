@@ -9,15 +9,12 @@ const util = new CommonUtil();
 const TIMER_RUNNING = 0;     // タイマー実行中
 const TIMER_STOPPING = 1;    // タイマー停止中
 const CONFIRM_PURCHASE = 2;  // 購入確認中
-const UNDER_PURCHASE = 3;    // 購入処理中
+const UNDER_PURCHASE = 3;    // 購入処理中F
 const CONFIRM_RUN_TIMER = 4; // タイマー実行確認中
 const SKILL_END = 5;         // スキル終了
 
 
 // オーディオ関連データ
-// TODO CloudFrontはやめる。月5万くらい行きそう
-// TODO URLを環境変数からとるようにしたい(cloudfrontやめるときとか、開発用とか)
-// TODO オーディオサイズ削減。モノラルにしてビットレートも落とすとだいぶ下がるのでは
 const timerSoundUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_60m.mp3';
 const audioMetaData = {
     "title": "計測",
@@ -210,7 +207,6 @@ const TimerRestartIntentHandler = {
 };
 
 // 何を購入できるかの説明
-// TODO 最初1時間、という要素をどこかに入れるべきか・・・
 const WhatCanIBuyIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
@@ -307,12 +303,7 @@ const BuyIntentHandler = {
     },
 };
 
-
-// TODO 音声を作成
 // TODO docsから不要なドキュメントを除去(承認された後)
-// TODO 外だしするなら環境変数ではなくパラメータストアかな
-
-
 // 購入処理からの復帰
 const BuyResponseHandler = {
     canHandle(handlerInput) {
