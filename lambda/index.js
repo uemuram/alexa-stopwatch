@@ -15,7 +15,8 @@ const SKILL_END = 5;         // スキル終了
 
 
 // オーディオ関連データ
-const timerSoundUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_60m.mp3';
+const timerSoundUrl_60m = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_60m.mp3';
+const timerSoundUrl_300m = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_60m.mp3';
 const audioMetaData = {
     "title": "計測",
     "subtitle": "「アレクサ、ストップ」で停止",
@@ -52,17 +53,23 @@ async function isEnitledExpansionPack(handlerInput) {
 }
 
 // 計測開始レスポンスを返す
-async function getStartTimerResponse(handlerInput) {
+async function getStartTimerResponse(handlerInput, offset, message) {
     const entitled = await isEnitledExpansionPack(handlerInput);
+
+    let response = handlerInput.responseBuilder;
+    if (message) {
+        response = response.speak(message);
+    }
+
     if (entitled) {
-        return handlerInput.responseBuilder
-            .speak('5時間の計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
+        console.log(`計測開始 : 300m (${offset}～)`);
+        return response
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_300m, 'token', offset, null, audioMetaData)
             .getResponse();
     } else {
-        return handlerInput.responseBuilder
-            .speak('1時間の計測を開始します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, 'token', 0, null, audioMetaData)
+        console.log(`計測開始 : 60m (${offset}～)`);
+        return response
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_60m, 'token', offset, null, audioMetaData)
             .getResponse();
     }
 }
@@ -99,7 +106,7 @@ const LaunchRequestHandler = {
     },
     async handle(handlerInput) {
         util.setState(handlerInput, TIMER_RUNNING);
-        return await getStartTimerResponse(handlerInput);
+        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
 };
 
@@ -113,7 +120,7 @@ const TimerStartIntentHandler = {
     },
     async handle(handlerInput) {
         util.setState(handlerInput, TIMER_RUNNING);
-        return await getStartTimerResponse(handlerInput);
+        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
 };
 
@@ -193,16 +200,12 @@ const TimerRestartIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const token = audioPlayer.token;
         const offset = audioPlayer.offsetInMilliseconds;
 
         util.setState(handlerInput, TIMER_RUNNING);
-        return handlerInput.responseBuilder
-            .speak('計測を再開します。')
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
-            .getResponse();
+        return await getStartTimerResponse(handlerInput, offset, '計測を再開します。');
     }
 };
 
@@ -386,14 +389,10 @@ const TimerRestartPlaybackControllerHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PlayCommandIssued';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const token = audioPlayer.token;
         const offset = audioPlayer.offsetInMilliseconds;
-
-        return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl, token, offset, null, audioMetaData)
-            .getResponse();
+        return await getStartTimerResponse(handlerInput, offset, null);
     }
 };
 
