@@ -306,7 +306,6 @@ const BuyIntentHandler = {
     },
 };
 
-// TODO docsから不要なドキュメントを除去(承認された後)
 // 購入処理からの復帰
 const BuyResponseHandler = {
     canHandle(handlerInput) {
