@@ -16,7 +16,8 @@ const SKILL_END = 5;         // スキル終了
 
 // オーディオ関連データ
 const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
-const timerSoundUrl_240m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
+//const timerSoundUrl_240m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
+const timerSoundUrl_240m = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_240m.mp3';
 const audioMetaData = {
     "title": "計測",
     "subtitle": "「アレクサ、ストップ」で停止",
