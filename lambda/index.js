@@ -172,7 +172,7 @@ const TimerStopIntentHandler = {
             .withSimpleCard(cardTitle, cardBody);
 
         // 画面利用可能であれば画面を追加
-        if (handlerInput.requestEnvelope.context.Viewport) {
+        if (Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)) {
             let aplDocument = util.deepCopy(require('./apl/TemplateDocument.json'));
             let aplDataSource = require('./apl/TemplateDataSource.json');
             aplDataSource.data.timerStr = timerStr.all;
