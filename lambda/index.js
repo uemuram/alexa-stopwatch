@@ -16,7 +16,7 @@ const SKILL_END = 5;         // スキル終了
 
 // オーディオ関連データ
 const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
-const timerSoundUrl_300m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
+const timerSoundUrl_240m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
 const audioMetaData = {
     "title": "計測",
     "subtitle": "「アレクサ、ストップ」で停止",
@@ -62,9 +62,9 @@ async function getStartTimerResponse(handlerInput, offset, message) {
     }
 
     if (entitled) {
-        console.log(`計測開始 : 300m (${offset}～)`);
+        console.log(`計測開始 : 240m (${offset}～)`);
         return response
-            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_300m, 'token', offset, null, audioMetaData)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_240m, 'token', offset, null, audioMetaData)
             .getResponse();
     } else {
         console.log(`計測開始 : 60m (${offset}～)`);
@@ -226,7 +226,7 @@ const WhatCanIBuyIntentHandler = {
             util.setState(handlerInput, CONFIRM_RUN_TIMER);
             return handlerInput.responseBuilder
                 .speak(`
-                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
+                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。
                     拡張パックはすでにお持ちです。
                     続いて計測を行いますか?
                 `)
@@ -237,7 +237,7 @@ const WhatCanIBuyIntentHandler = {
         util.setState(handlerInput, CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
             .speak(`
-                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。
+                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。
                 購入処理に進みますか?
             `)
             .reprompt('購入処理に進みますか?')
@@ -419,7 +419,7 @@ const HelpIntentHandler = {
             + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
             + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
             + 'ストップ後に新たに計測を始める場合は、「アレクサ、最初から」と言ってください。'
-            + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大5時間に拡張できます。'
+            + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。'
             + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パック」、のように言ってください。'
             + '計測を行いますか?'
             ;
