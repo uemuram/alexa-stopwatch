@@ -46,7 +46,7 @@
     },
     "manifestVersion": "1.0",
     "privacyAndCompliance": {
-      "allowsPurchases": false,
+      "allowsPurchases": true,
       "usesPersonalInfo": false,
       "isChildDirected": false,
       "isExportCompliant": true,
