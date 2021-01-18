@@ -52,6 +52,18 @@
                     ]
                 },
                 {
+                    "name": "RefundSkillItemIntent",
+                    "slots": [
+                        {
+                            "name": "RefundSkillItemOrder",
+                            "type": "REFUND_SKILL_ITEM_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {RefundSkillItemOrder} "
+                    ]
+                },
+                {
                     "name": "AMAZON.YesIntent",
                     "samples": []
                 },
@@ -171,6 +183,27 @@
                                     "買いません",
                                     "購入しない",
                                     "購入しません"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "REFUND_SKILL_ITEM_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "拡張パックを返品",
+                                "synonyms": [
+                                    "拡張パックを返品したい",
+                                    "拡張パックを返品して",
+                                    "拡張パックを返金",
+                                    "拡張パックを返金したい", 
+                                    "拡張パックを返金して", 
+                                    "拡張パックを返金を受けたい", 
+                                    "拡張パックを取り消し", 
+                                    "拡張パックをキャンセル" 
                                 ]
                             }
                         }

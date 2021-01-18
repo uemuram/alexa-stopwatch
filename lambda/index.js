@@ -10,8 +10,9 @@ const TIMER_RUNNING = 0;     // タイマー実行中
 const TIMER_STOPPING = 1;    // タイマー停止中
 const CONFIRM_PURCHASE = 2;  // 購入確認中
 const UNDER_PURCHASE = 3;    // 購入処理中
-const CONFIRM_RUN_TIMER = 4; // タイマー実行確認中
-const SKILL_END = 5;         // スキル終了
+const UNDER_REFUND = 4; // タイマー実行確認中
+const CONFIRM_RUN_TIMER = 5; // タイマー実行確認中
+const SKILL_END = 6;         // スキル終了
 
 
 // オーディオ関連データ
@@ -290,7 +291,7 @@ const BuyIntentHandler = {
         console.log(products);
 
         // ステータスをチェック
-        product = products.inSkillProducts[0];
+        const product = products.inSkillProducts[0];
         const productId = product.productId;
         const entitled = product.entitled;
         console.log(`productId : ${productId}`);
@@ -318,7 +319,9 @@ const BuyResponseHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Connections.Response' &&
             (handlerInput.requestEnvelope.request.name === 'Buy' ||
-                handlerInput.requestEnvelope.request.name === 'Upsell');
+                handlerInput.requestEnvelope.request.name === 'Upsell' ||
+                handlerInput.requestEnvelope.request.name === 'Cancel'
+            );
     },
     async handle(handlerInput) {
         console.log('【購入処理から復帰】');
@@ -327,6 +330,46 @@ const BuyResponseHandler = {
         return handlerInput.responseBuilder
             .speak(`続いて計測を行いますか?`)
             .reprompt('計測を行いますか?')
+            .getResponse();
+    },
+};
+
+// 購入のキャンセル
+const RefundSkillItemIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && util.checkStrictSlotMatch(handlerInput, 'RefundSkillItemIntent', 'RefundSkillItemOrder');
+    },
+    async handle(handlerInput) {
+        console.log('【購入のキャンセル】');
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        // 製品情報を取得
+        const locale = handlerInput.requestEnvelope.request.locale;
+        const products = await ms.getInSkillProducts(locale);
+        console.log(products);
+
+        // ステータスをチェック
+        const product = products.inSkillProducts[0];
+        const productId = product.productId;
+        const entitled = product.entitled;
+        console.log(`productId : ${productId}`);
+        console.log(`entitled : ${entitled}`);
+
+        // Alexa標準の購入処理に進む
+        util.setState(handlerInput, UNDER_REFUND);
+        return handlerInput.responseBuilder
+            .addDirective({
+                type: 'Connections.SendRequest',
+                name: 'Cancel',
+                payload: {
+                    InSkillProduct: {
+                        productId: productId,
+                    },
+                },
+                token: 'correlationToken',
+            })
             .getResponse();
     },
 };
@@ -503,6 +546,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         DoNothingHandler,
         BuyIntentHandler,
         BuyResponseHandler,
+        RefundSkillItemIntentHandler,
         DoNothingIntentHandler,
         DoNothingAudioPlayerHandler,
         DoNothingPlaybackControllerHandler,
