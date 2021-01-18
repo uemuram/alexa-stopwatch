@@ -106,6 +106,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     async handle(handlerInput) {
+        console.log('【スキル起動 & 計測開始】');
         util.setState(handlerInput, TIMER_RUNNING);
         return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
@@ -120,12 +121,13 @@ const TimerStartIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StartOverIntent');
     },
     async handle(handlerInput) {
+        console.log('【計測開始】');
         util.setState(handlerInput, TIMER_RUNNING);
         return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
     }
 };
 
-// タイマー停止
+// 計測停止
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -133,6 +135,8 @@ const TimerStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.PauseIntent');
     },
     async handle(handlerInput) {
+        console.log('【計測停止】');
+
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
 
         // 拡張パック購入状況をチェック
@@ -173,7 +177,7 @@ const TimerStopIntentHandler = {
             .withSimpleCard(cardTitle, cardBody);
 
         // 画面利用可能であれば画面を追加
-        if (Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)) {
+        if (handlerInput.requestEnvelope.context.Viewport) {
             let aplDocument = util.deepCopy(require('./apl/TemplateDocument.json'));
             let aplDataSource = require('./apl/TemplateDataSource.json');
             aplDataSource.data.timerStr = timerStr.all;
@@ -195,13 +199,15 @@ const TimerStopIntentHandler = {
     }
 };
 
-// タイマー再開
+// 計測再開
 const TimerRestartIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
     },
     async handle(handlerInput) {
+        console.log('【計測再開】');
+
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
         const offset = audioPlayer.offsetInMilliseconds;
 
@@ -217,7 +223,7 @@ const WhatCanIBuyIntentHandler = {
             util.checkStrictSlotMatch(handlerInput, 'WhatCanIBuyIntent', 'WhatCanIBuyOrder');
     },
     async handle(handlerInput) {
-        console.log('商品説明');
+        console.log('【商品説明】');
 
         // 拡張パック購入状況をチェック
         const entitled = await isEnitledExpansionPack(handlerInput);
@@ -255,7 +261,7 @@ const DoNothingHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent');
     },
     handle(handlerInput) {
-        console.log('何もしない');
+        console.log('【何もしない】');
 
         util.setState(handlerInput, SKILL_END);
         return handlerInput.responseBuilder
@@ -274,7 +280,7 @@ const BuyIntentHandler = {
             );
     },
     async handle(handlerInput) {
-        console.log('購入処理');
+        console.log('【購入処理】');
 
         const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
@@ -315,7 +321,7 @@ const BuyResponseHandler = {
                 handlerInput.requestEnvelope.request.name === 'Upsell');
     },
     async handle(handlerInput) {
-        console.log('購入処理から復帰');
+        console.log('【購入処理から復帰】');
 
         util.setState(handlerInput, CONFIRM_RUN_TIMER);
         return handlerInput.responseBuilder
@@ -378,6 +384,7 @@ const TimerStopPlaybackControllerHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PauseCommandIssued';
     },
     handle(handlerInput) {
+        console.log('【計測停止(画面)】');
         return handlerInput.responseBuilder
             .addAudioPlayerStopDirective()
             .getResponse();
@@ -390,6 +397,7 @@ const TimerRestartPlaybackControllerHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PlayCommandIssued';
     },
     async handle(handlerInput) {
+        console.log('【計測再開(画面)】');
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
         const offset = audioPlayer.offsetInMilliseconds;
         return await getStartTimerResponse(handlerInput, offset, null);
