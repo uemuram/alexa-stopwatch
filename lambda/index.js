@@ -38,16 +38,31 @@ const audioMetaData = {
     }
 }
 
-// 拡張パック利用可能かどうかを判断する
-async function isEnitledExpansionPack(handlerInput) {
+// スキル内商品の情報を取得する
+async function getProductInfo(handlerInput) {
     const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
     // 製品情報を取得
     const locale = handlerInput.requestEnvelope.request.locale;
     const products = await ms.getInSkillProducts(locale);
+
     // ステータスをチェック
-    const entitled = products.inSkillProducts[0].entitled;
+    const product = products.inSkillProducts[0];
+    const productId = product.productId;
+    const entitled = product.entitled;
+    console.log(`productId : ${productId}`);
     console.log(`entitled : ${entitled}`);
-    if (entitled == 'ENTITLED') {
+
+    return {
+        productId: productId,
+        entitled: entitled
+    };
+}
+
+// 拡張パック利用可能かどうかを判断する
+async function isEnitledExpansionPack(handlerInput) {
+    const productInfo = await getProductInfo(handlerInput);
+    if (productInfo.entitled == 'ENTITLED') {
         return true;
     } else {
         return false;
@@ -282,20 +297,7 @@ const BuyIntentHandler = {
     },
     async handle(handlerInput) {
         console.log('【購入処理】');
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        // 製品情報を取得
-        const locale = handlerInput.requestEnvelope.request.locale;
-        const products = await ms.getInSkillProducts(locale);
-        console.log(products);
-
-        // ステータスをチェック
-        const product = products.inSkillProducts[0];
-        const productId = product.productId;
-        const entitled = product.entitled;
-        console.log(`productId : ${productId}`);
-        console.log(`entitled : ${entitled}`);
+        const productInfo = await getProductInfo(handlerInput);
 
         // Alexa標準の購入処理に進む
         util.setState(handlerInput, UNDER_PURCHASE);
@@ -305,7 +307,7 @@ const BuyIntentHandler = {
                 name: 'Buy',
                 payload: {
                     InSkillProduct: {
-                        productId: productId,
+                        productId: productInfo.productId,
                     },
                 },
                 token: 'correlationToken',
@@ -342,20 +344,7 @@ const RefundSkillItemIntentHandler = {
     },
     async handle(handlerInput) {
         console.log('【購入のキャンセル】');
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        // 製品情報を取得
-        const locale = handlerInput.requestEnvelope.request.locale;
-        const products = await ms.getInSkillProducts(locale);
-        console.log(products);
-
-        // ステータスをチェック
-        const product = products.inSkillProducts[0];
-        const productId = product.productId;
-        const entitled = product.entitled;
-        console.log(`productId : ${productId}`);
-        console.log(`entitled : ${entitled}`);
+        const productInfo = await getProductInfo(handlerInput);
 
         // Alexa標準の購入処理に進む
         util.setState(handlerInput, UNDER_REFUND);
@@ -365,7 +354,7 @@ const RefundSkillItemIntentHandler = {
                 name: 'Cancel',
                 payload: {
                     InSkillProduct: {
-                        productId: productId,
+                        productId: productInfo.productId,
                     },
                 },
                 token: 'correlationToken',
