@@ -45,30 +45,30 @@ class Logic {
         }
     }
 
-    // 計測開始レスポンスを返す
-    async getStartTimerResponse(handlerInput, offset, message) {
-        const entitled = await this.isEnitledExpansionPack(handlerInput);
+    // // 計測開始レスポンスを返す
+    // async getStartTimerResponse(handlerInput, offset, message) {
+    //     const entitled = await this.isEnitledExpansionPack(handlerInput);
 
-        let response = handlerInput.responseBuilder;
-        if (message) {
-            response = response.speak(message);
-        }
+    //     let response = handlerInput.responseBuilder;
+    //     if (message) {
+    //         response = response.speak(message);
+    //     }
 
-        if (entitled) {
-            console.log(`計測開始 : 240m (${offset}～)`);
-            return response
-                .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_240m, 'token', offset, null, c.audioMetaData)
-                .getResponse();
-        } else {
-            console.log(`計測開始 : 60m (${offset}～)`);
-            return response
-                .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_60m, 'token', offset, null, c.audioMetaData)
-                .getResponse();
-        }
-    }
+    //     if (entitled) {
+    //         console.log(`計測開始 : 240m (${offset}～)`);
+    //         return response
+    //             .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_240m, 'token', offset, null, c.audioMetaData)
+    //             .getResponse();
+    //     } else {
+    //         console.log(`計測開始 : 60m (${offset}～)`);
+    //         return response
+    //             .addAudioPlayerPlayDirective('REPLACE_ALL', timerSoundUrl_60m, 'token', offset, null, c.audioMetaData)
+    //             .getResponse();
+    //     }
+    // }
 
     // 最初から計測する際のレスポンスを返す
-    async getStartTimerResponse2(handlerInput, message) {
+    async getStartTimerResponse(handlerInput, message) {
         let response = handlerInput.responseBuilder;
         if (message) {
             response = response.speak(message);
@@ -82,9 +82,18 @@ class Logic {
     }
 
     // 再開する際のレスポンスを返す
-    getRestartTimerResponse2(handlerInput, message, offset) {
+    getRestartTimerResponse(handlerInput, message) {
         let response = handlerInput.responseBuilder;
+        if (message) {
+            response = response.speak(message);
+        }
+        const audioInfo = this.getAudioInfo(handlerInput);
+        const url = `${c.timerSoundUrlPrefix}${audioInfo.idx}.mp3`;
+        console.log(`計測再開 : ${audioInfo.token}(${audioInfo.offsetInMilliseconds}～)`);
 
+        return response
+            .addAudioPlayerPlayDirective('REPLACE_ALL', url, audioInfo.token, audioInfo.offsetInMilliseconds, null, c.audioMetaData)
+            .getResponse();
     }
 
     // ミリ秒を読み上げ可能な時間形式にする

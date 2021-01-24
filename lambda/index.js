@@ -21,7 +21,7 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return await logic.getStartTimerResponse2(handlerInput, '計測を開始します。');
+        return await logic.getStartTimerResponse(handlerInput, '計測を開始します。');
     }
 };
 
@@ -36,7 +36,7 @@ const TimerStartIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測開始】');
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return await logic.getStartTimerResponse2(handlerInput, '計測を開始します。');
+        return await logic.getStartTimerResponse(handlerInput, '計測を開始します。');
     }
 };
 
@@ -120,14 +120,11 @@ const TimerRestartIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.ResumeIntent');
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         console.log('【計測再開】');
 
-        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const offset = audioPlayer.offsetInMilliseconds;
-
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return await logic.getStartTimerResponse(handlerInput, offset, '計測を再開します。');
+        return logic.getRestartTimerResponse(handlerInput, '計測を再開します。');
     }
 };
 
@@ -367,11 +364,9 @@ const TimerRestartPlaybackControllerHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'PlaybackController.PlayCommandIssued';
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         console.log('【計測再開(画面)】');
-        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const offset = audioPlayer.offsetInMilliseconds;
-        return await logic.getStartTimerResponse(handlerInput, offset, null);
+        return logic.getRestartTimerResponse(handlerInput, null);
     }
 };
 
