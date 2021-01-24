@@ -112,6 +112,12 @@ async function getStartTimerResponse2(handlerInput, message) {
         .getResponse();
 }
 
+// 計測を再開する際のレスポンスを返す
+
+
+
+
+
 // ミリ秒を読み上げ可能な時間形式にする
 function getTimerStr(time) {
     time = Math.round(time / 10) * 10;
@@ -399,9 +405,17 @@ const PlaybackNearlyFinishedHandler = {
         const currentIdx = Number(currentToken.substring(tokenPrefix.length));
         console.log(`現行トークン : ${currentToken}`);
 
-        // TODO 商品未購入であれば終了させる
+        // 商品未購入であれば終了させる
+        // TODO 商品未購入のため終了させる旨の音声を含める
+        const entitled = await isEnitledExpansionPack(handlerInput);
+        if (!entitled) {
+            console.log(`商品未購入のため終了`)
+            return handlerInput.responseBuilder
+                .getResponse();
+        }
 
         // 上限に達していれば終了させる
+        // TODO 上限到達のため終了させる旨の音声を含める
         const nextIdx = currentIdx + 1;
         if (nextIdx >= timerIdxLimit) {
             console.log(`上限到達のため終了`)
