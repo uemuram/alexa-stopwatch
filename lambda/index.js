@@ -15,6 +15,13 @@ const CONFIRM_RUN_TIMER = 5; // タイマー実行確認中
 const SKILL_END = 6;         // スキル終了
 
 
+// タイマー用ファイル(プレフィックス)
+const timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_';
+// トークン(プレフィックス)
+const tokenPrefix = 'token_';
+// 対応しているファイル数(3なら3時間計測できる)
+const timerSoundNum = 3;
+
 // オーディオ関連データ
 const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
 //const timerSoundUrl_240m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
@@ -91,6 +98,20 @@ async function getStartTimerResponse(handlerInput, offset, message) {
     }
 }
 
+// 最初から計測する際のレスポンスを返す
+async function getStartTimerResponse2(handlerInput, message) {
+    let response = handlerInput.responseBuilder;
+    if (message) {
+        response = response.speak(message);
+    }
+    const url = `${timerSoundUrlPrefix}0.mp3`;
+    const token = `${tokenPrefix}0`;
+    console.log(`計測開始 : ${token}`);
+    return response
+        .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null, audioMetaData)
+        .getResponse();
+}
+
 // ミリ秒を読み上げ可能な時間形式にする
 function getTimerStr(time) {
     time = Math.round(time / 10) * 10;
@@ -124,7 +145,7 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
         util.setState(handlerInput, TIMER_RUNNING);
-        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
+        return await getStartTimerResponse2(handlerInput, '計測を開始します。');
     }
 };
 
@@ -363,6 +384,35 @@ const RefundSkillItemIntentHandler = {
     },
 };
 
+
+// オーディオ終了間際のハンドラ
+const PlaybackNearlyFinishedHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackNearlyFinished';
+    },
+    handle(handlerInput) {
+        console.log('【終了間際】');
+
+        const audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+        const currentToken = audioPlayer.token;
+        const nextToken = `${tokenPrefix}1`;
+        const nextSoundurl = `${timerSoundUrlPrefix}1.mp3`;
+        console.log(`現行トークン : ${currentToken}`);
+
+        if (currentToken == `${tokenPrefix}1`) {
+            return handlerInput.responseBuilder
+                .getResponse();
+        }
+
+        return handlerInput.responseBuilder
+            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, currentToken)
+            .getResponse();
+    }
+};
+
+
+
+
 // そのほかのオーディオ関連発話を拾うハンドラ(特に何もしない)
 const DoNothingIntentHandler = {
     canHandle(handlerInput) {
@@ -388,7 +438,6 @@ const DoNothingAudioPlayerHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackStarted'
             || Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackFinished'
             || Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackStopped'
-            || Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackNearlyFinished'
             || Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackFailed'
             ;
     },
@@ -536,6 +585,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         BuyIntentHandler,
         BuyResponseHandler,
         RefundSkillItemIntentHandler,
+        PlaybackNearlyFinishedHandler,
         DoNothingIntentHandler,
         DoNothingAudioPlayerHandler,
         DoNothingPlaybackControllerHandler,
