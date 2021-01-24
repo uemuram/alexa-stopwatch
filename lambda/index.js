@@ -50,19 +50,11 @@ const TimerStopIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測停止】');
 
-        let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const currentToken = audioPlayer.token;
-        const currentIdx = Number(currentToken.substring(c.tokenPrefix.length));
-        console.log(`現行トークン : ${currentToken}`);
-
-        // 拡張パック購入状況をチェック
-        const entitled = await logic.isEnitledExpansionPack(handlerInput);
-
-        // ミリ秒を結果に変換
-        // オーディオ内の経過時間 + 時間(ミリ秒)
+        // ミリ秒を結果に変換。オーディオ内の経過時間 + 時間(ミリ秒)
         // 次トラックに進んだ直後3秒くらいは、offsetInMillisecondsが0になってしまうが、見送る
-        let time = audioPlayer.offsetInMilliseconds + 3600000 * currentIdx;
-        if (currentIdx == 0) {
+        const audioInfo = logic.getAudioInfo(handlerInput);
+        let time = audioInfo.offsetInMilliseconds + 3600000 * audioInfo.idx;
+        if (audioInfo.idx == 0) {
             // 最初の1時間分だった場合 : カウント分を減らす
             time -= 4000;
         }
@@ -89,6 +81,7 @@ const TimerStopIntentHandler = {
             + "・計測を再開　：「アレクサ、再開」\n"
             + "・最初から計測：「アレクサ、最初から」";
         // 未購入のときのみ拡張パックの案内を付与
+        const entitled = await logic.isEnitledExpansionPack(handlerInput);
         if (!entitled) {
             cardBody += '\n・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」';
         }
@@ -279,10 +272,7 @@ const PlaybackNearlyFinishedHandler = {
         console.log('【終了間際】');
 
         // 現在再生中のオーディオの情報を取得
-        const audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
-        const currentToken = audioPlayer.token;
-        const currentIdx = Number(currentToken.substring(c.tokenPrefix.length));
-        console.log(`現行トークン : ${currentToken}`);
+        const audioInfo = logic.getAudioInfo(handlerInput);
 
         // 商品未購入であれば終了させる
         // TODO 商品未購入のため終了させる旨の音声を含める
@@ -295,7 +285,7 @@ const PlaybackNearlyFinishedHandler = {
 
         // 上限に達していれば終了させる
         // TODO 上限到達のため終了させる旨の音声を含める
-        const nextIdx = currentIdx + 1;
+        const nextIdx = audioInfo.idx + 1;
         if (nextIdx >= c.timerIdxLimit) {
             console.log(`上限到達のため終了`)
             return handlerInput.responseBuilder
@@ -308,13 +298,10 @@ const PlaybackNearlyFinishedHandler = {
         console.log(`次トークン : ${nextToken}`);
 
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, currentToken, c.audioMetaData)
+            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, audioInfo.token, c.audioMetaData)
             .getResponse();
     }
 };
-
-
-
 
 // そのほかのオーディオ関連発話を拾うハンドラ(特に何もしない)
 const DoNothingIntentHandler = {
