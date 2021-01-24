@@ -20,7 +20,7 @@ const timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/tim
 // トークン(プレフィックス)
 const tokenPrefix = 'token_';
 // 対応しているファイル数(3なら3時間計測できる)
-const timerSoundNum = 3;
+const timerIdxLimit = 3;
 
 // オーディオ関連データ
 const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
@@ -160,7 +160,7 @@ const TimerStartIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測開始】');
         util.setState(handlerInput, TIMER_RUNNING);
-        return await getStartTimerResponse(handlerInput, 0, '計測を開始します。');
+        return await getStartTimerResponse2(handlerInput, '計測を開始します。');
     }
 };
 
@@ -390,22 +390,32 @@ const PlaybackNearlyFinishedHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'AudioPlayer.PlaybackNearlyFinished';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.log('【終了間際】');
 
+        // 現在再生中のオーディオの情報を取得
         const audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
         const currentToken = audioPlayer.token;
-        const nextToken = `${tokenPrefix}1`;
-        const nextSoundurl = `${timerSoundUrlPrefix}1.mp3`;
+        const currentIdx = Number(currentToken.substring(tokenPrefix.length));
         console.log(`現行トークン : ${currentToken}`);
 
-        if (currentToken == `${tokenPrefix}1`) {
+        // TODO 商品未購入であれば終了させる
+
+        // 上限に達していれば終了させる
+        const nextIdx = currentIdx + 1;
+        if (nextIdx >= timerIdxLimit) {
+            console.log(`上限到達のため終了`)
             return handlerInput.responseBuilder
                 .getResponse();
         }
 
+        // 次のタイマー音声をセット
+        const nextToken = `${tokenPrefix}${nextIdx}`;
+        const nextSoundurl = `${timerSoundUrlPrefix}${nextIdx}.mp3`;
+        console.log(`次トークン : ${nextToken}`);
+
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, currentToken)
+            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, currentToken, audioMetaData)
             .getResponse();
     }
 };
