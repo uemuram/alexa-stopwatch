@@ -181,12 +181,21 @@ const TimerStopIntentHandler = {
         console.log('【計測停止】');
 
         let audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
+        const currentToken = audioPlayer.token;
+        const currentIdx = Number(currentToken.substring(tokenPrefix.length));
+        console.log(`現行トークン : ${currentToken}`);
 
         // 拡張パック購入状況をチェック
         const entitled = await isEnitledExpansionPack(handlerInput);
 
         // ミリ秒を結果に変換
-        let time = audioPlayer.offsetInMilliseconds - 4000; // 最初のカウント分を減らす
+        // オーディオ内の経過時間 + 時間(ミリ秒)
+        // 次トラックに進んだ直後3秒くらいは、offsetInMillisecondsが0になってしまうが、見送る
+        let time = audioPlayer.offsetInMilliseconds + 3600000 * currentIdx;
+        if (currentIdx == 0) {
+            // 最初の1時間分だった場合 : カウント分を減らす
+            time -= 4000;
+        }
         const totalMsec = time;
         // タイマー音声内でまだ開始していなかったらキャンセル。
         if (time < 0) {
