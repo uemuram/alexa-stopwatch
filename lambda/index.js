@@ -2,6 +2,7 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
+const Adapter = require('ask-sdk-dynamodb-persistence-adapter');
 
 const CommonUtil = require('./CommonUtil.js');
 const util = new CommonUtil();
@@ -20,6 +21,11 @@ const LaunchRequestHandler = {
     },
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
+
+        util.setPersistentValue(handlerInput, "aaa", 6);
+        console.log(await util.getPersistentValue(handlerInput, "reach_limit_count"));
+
+
 
         // 条件を満たす場合のみアップセルに遷移
         const productInfo = await logic.getProductInfo(handlerInput);
@@ -517,4 +523,11 @@ exports.handler = Alexa.SkillBuilders.custom()
     )
     .withApiClient(new Alexa.DefaultApiClient())
     .addRequestInterceptors(RequestLog)
+    .withPersistenceAdapter(
+        new Adapter.DynamoDbPersistenceAdapter(
+            {
+                tableName: 'alexa_stopwatch',
+                createTable: true
+            })
+    )
     .lambda();

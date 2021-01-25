@@ -27,9 +27,26 @@ class CommonUtil {
     // セッションに値を入れる
     setSessionValue(handlerInput, key, value) {
         let attr = handlerInput.attributesManager.getSessionAttributes();
-        attr[key] = value
+        attr[key] = value;
         handlerInput.attributesManager.setSessionAttributes(attr);
         console.log("セッション保存 : " + JSON.stringify({ 'key': key, 'value': value }));
+    }
+
+    // 永続領域から値を取得
+    async getPersistentValue(handlerInput, key) {
+        const attr = handlerInput.attributesManager;
+        const persistentAttributes = await attr.getPersistentAttributes();
+        return persistentAttributes[key];
+    }
+
+    // 永続領域に値を入れる
+    async setPersistentValue(handlerInput, key, value) {
+        const attr = handlerInput.attributesManager;
+        const persistentAttributes = await attr.getPersistentAttributes();
+        persistentAttributes[key] = value;
+        attr.setPersistentAttributes(persistentAttributes);
+        await attr.savePersistentAttributes();
+        console.log("永続データ保存 : " + JSON.stringify({ 'key': key, 'value': value }));
     }
 
     // セッションからスロット情報を取得
