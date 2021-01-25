@@ -18,6 +18,10 @@ class Constant {
         // 対応しているファイル数(3なら3時間計測できる)
         this.timerIdxLimit = 3;
 
+        // 終了用オーディオ
+        this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';
+        this.timerFinishToken = 'timer_finish';
+
         // オーディオ関連データ
         this.audioMetaData = {
             "title": "計測",

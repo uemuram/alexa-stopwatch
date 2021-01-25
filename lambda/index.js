@@ -50,9 +50,17 @@ const TimerStopIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測停止】');
 
+        const audioInfo = logic.getAudioInfo(handlerInput);
+
+        // 終了メッセージ再生中は何もしない
+        if (audioInfo.token == c.timerFinishToken) {
+            return handlerInput.responseBuilder
+                .addAudioPlayerStopDirective()
+                .getResponse();
+        }
+
         // ミリ秒を結果に変換。オーディオ内の経過時間 + 時間(ミリ秒)
         // 次トラックに進んだ直後3秒くらいは、offsetInMillisecondsが0になってしまうが、見送る
-        const audioInfo = logic.getAudioInfo(handlerInput);
         let time = audioInfo.offsetInMilliseconds + 3600000 * audioInfo.idx;
         if (audioInfo.idx == 0) {
             // 最初の1時間分だった場合 : カウント分を減らす
@@ -259,7 +267,6 @@ const RefundSkillItemIntentHandler = {
     },
 };
 
-
 // オーディオ終了間際のハンドラ
 const PlaybackNearlyFinishedHandler = {
     canHandle(handlerInput) {
@@ -271,21 +278,27 @@ const PlaybackNearlyFinishedHandler = {
         // 現在再生中のオーディオの情報を取得
         const audioInfo = logic.getAudioInfo(handlerInput);
 
-        // 商品未購入であれば終了させる
-        // TODO 商品未購入のため終了させる旨の音声を含める
-        const entitled = await logic.isEnitledExpansionPack(handlerInput);
-        if (!entitled) {
-            console.log(`商品未購入のため終了`)
+        // 終了音声再生中であれば何もしない
+        if (audioInfo.token === c.timerFinishToken) {
             return handlerInput.responseBuilder
                 .getResponse();
         }
 
+        // 商品未購入であれば終了させる
+        const entitled = await logic.isEnitledExpansionPack(handlerInput);
+        if (!entitled) {
+            console.log(`商品未購入のため終了`)
+            return handlerInput.responseBuilder
+                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
+                .getResponse();
+        }
+
         // 上限に達していれば終了させる
-        // TODO 上限到達のため終了させる旨の音声を含める
         const nextIdx = audioInfo.idx + 1;
         if (nextIdx >= c.timerIdxLimit) {
             console.log(`上限到達のため終了`)
             return handlerInput.responseBuilder
+                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
                 .getResponse();
         }
 
