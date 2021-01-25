@@ -20,6 +20,26 @@ const LaunchRequestHandler = {
     },
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
+
+        // 条件を満たす場合のみアップセルに遷移
+        const productInfo = await logic.getProductInfo(handlerInput);
+        util.setState(handlerInput, c.UNDER_PURCHASE);
+        return handlerInput.responseBuilder
+            .addDirective({
+                type: 'Connections.SendRequest',
+                name: 'Upsell',
+                payload: {
+                    InSkillProduct: {
+                        productId: productInfo.productId,
+                    },
+                    upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
+                },
+                token: 'upsellToken',
+            })
+            .getResponse();
+
+
+        // 計測開始
         util.setState(handlerInput, c.TIMER_RUNNING);
         return await logic.getStartTimerResponse(handlerInput, '計測を開始します。');
     }
@@ -153,7 +173,7 @@ const WhatCanIBuyIntentHandler = {
             util.setState(handlerInput, c.CONFIRM_RUN_TIMER);
             return handlerInput.responseBuilder
                 .speak(`
-                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。
+                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。
                     拡張パックはすでにお持ちです。
                     続いて計測を行いますか?
                 `)
@@ -164,10 +184,10 @@ const WhatCanIBuyIntentHandler = {
         util.setState(handlerInput, c.CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
             .speak(`
-                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。
-                購入処理に進みますか?
+                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。
+                詳細を聞きますか?
             `)
-            .reprompt('購入処理に進みますか?')
+            .reprompt('詳細を聞きますか?')
             .getResponse();
     },
 };
