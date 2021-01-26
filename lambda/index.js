@@ -13,8 +13,6 @@ const logic = new Logic();
 const Constant = require('./Constant');
 const c = new Constant();
 
-// TODO 「いえ」にちゃんと反応するようにする
-
 // スキル起動 & 計測開始
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -201,6 +199,7 @@ const DoNothingHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && (util.checkStrictSlotMatch(handlerInput, 'DontBuyIntent', 'DontBuyOrder')
+                || util.checkStrictSlotMatch(handlerInput, 'DenyIntent', 'DenyOrder')
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent');
     },
