@@ -46,7 +46,7 @@ class Logic {
     }
 
     // 最初から計測する際のレスポンスを返す
-    async getStartTimerResponse(handlerInput, message) {
+    getStartTimerResponse(handlerInput, message) {
         let response = handlerInput.responseBuilder;
         if (message) {
             response = response.speak(message);

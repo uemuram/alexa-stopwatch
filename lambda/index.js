@@ -43,7 +43,7 @@ const LaunchRequestHandler = {
 
         // 計測開始
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return await logic.getStartTimerResponse(handlerInput, '計測を開始します。');
+        return logic.getStartTimerResponse(handlerInput, '計測を開始します。');
     }
 };
 
@@ -58,7 +58,7 @@ const TimerStartIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測開始】');
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return await logic.getStartTimerResponse(handlerInput, '計測を開始します。');
+        return logic.getStartTimerResponse(handlerInput, '計測を開始します。');
     }
 };
 
