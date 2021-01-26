@@ -13,6 +13,7 @@ const logic = new Logic();
 const Constant = require('./Constant');
 const c = new Constant();
 
+// TODO 「いえ」にちゃんと反応するようにする
 
 // スキル起動 & 計測開始
 const LaunchRequestHandler = {
@@ -25,24 +26,21 @@ const LaunchRequestHandler = {
         util.setPersistentValue(handlerInput, "aaa", 6);
         console.log(await util.getPersistentValue(handlerInput, "reach_limit_count"));
 
-
-
-        // 条件を満たす場合のみアップセルに遷移
-        const productInfo = await logic.getProductInfo(handlerInput);
-        util.setState(handlerInput, c.UNDER_PURCHASE);
-        return handlerInput.responseBuilder
-            .addDirective({
-                type: 'Connections.SendRequest',
-                name: 'Upsell',
-                payload: {
-                    InSkillProduct: {
-                        productId: productInfo.productId,
-                    },
-                    upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
-                },
-                token: 'upsellToken',
-            })
-            .getResponse();
+        // // 条件を満たす場合のみアップセルに遷移
+        // util.setState(handlerInput, c.UNDER_PURCHASE);
+        // return handlerInput.responseBuilder
+        //     .addDirective({
+        //         type: 'Connections.SendRequest',
+        //         name: 'Upsell',
+        //         payload: {
+        //             InSkillProduct: {
+        //                 productId: c.productId,
+        //             },
+        //             upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
+        //         },
+        //         token: 'upsellToken',
+        //     })
+        //     .getResponse();
 
 
         // 計測開始
@@ -225,9 +223,8 @@ const BuyIntentHandler = {
                 || (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.YesIntent' && util.checkState(handlerInput, c.CONFIRM_PURCHASE))
             );
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         console.log('【購入処理】');
-        const productInfo = await logic.getProductInfo(handlerInput);
 
         // Alexa標準の購入処理に進む
         util.setState(handlerInput, c.UNDER_PURCHASE);
@@ -237,7 +234,7 @@ const BuyIntentHandler = {
                 name: 'Buy',
                 payload: {
                     InSkillProduct: {
-                        productId: productInfo.productId,
+                        productId: c.productId,
                     },
                 },
                 token: 'correlationToken',
@@ -272,9 +269,8 @@ const RefundSkillItemIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && util.checkStrictSlotMatch(handlerInput, 'RefundSkillItemIntent', 'RefundSkillItemOrder');
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         console.log('【購入のキャンセル】');
-        const productInfo = await logic.getProductInfo(handlerInput);
 
         // Alexa標準の購入処理に進む
         util.setState(handlerInput, c.UNDER_REFUND);
@@ -284,7 +280,7 @@ const RefundSkillItemIntentHandler = {
                 name: 'Cancel',
                 payload: {
                     InSkillProduct: {
-                        productId: productInfo.productId,
+                        productId: c.productId,
                     },
                 },
                 token: 'correlationToken',
