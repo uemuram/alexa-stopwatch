@@ -21,7 +21,7 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
 
-        util.setPersistentValue(handlerInput, "aaa", 6);
+        await util.setPersistentValue(handlerInput, "aaa", 6);
         console.log(await util.getPersistentValue(handlerInput, "reach_limit_count"));
 
         // // 条件を満たす場合のみアップセルに遷移
@@ -521,7 +521,7 @@ exports.handler = Alexa.SkillBuilders.custom()
     .withPersistenceAdapter(
         new Adapter.DynamoDbPersistenceAdapter(
             {
-                tableName: 'alexa_stopwatch',
+                tableName: 'alexa_stopwatch_persistent',
                 createTable: true
             })
     )
