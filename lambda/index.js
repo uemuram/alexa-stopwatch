@@ -21,25 +21,29 @@ const LaunchRequestHandler = {
     async handle(handlerInput) {
         console.log('【スキル起動 & 計測開始】');
 
-        await util.setPersistentValue(handlerInput, "aaa", 6);
-        console.log(await util.getPersistentValue(handlerInput, "reach_limit_count"));
-
-        // // 条件を満たす場合のみアップセルに遷移
-        // util.setState(handlerInput, c.UNDER_PURCHASE);
-        // return handlerInput.responseBuilder
-        //     .addDirective({
-        //         type: 'Connections.SendRequest',
-        //         name: 'Upsell',
-        //         payload: {
-        //             InSkillProduct: {
-        //                 productId: c.productId,
-        //             },
-        //             upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
-        //         },
-        //         token: 'upsellToken',
-        //     })
-        //     .getResponse();
-
+        // アップセルを読み上げるかの判定(商品未購入 & 一定回数上限に到達)
+        const entitled = await logic.isEnitledExpansionPack(handlerInput);
+        if (
+            !entitled
+            && await util.getPersistentValue(handlerInput, "reach_limit_count") >= c.upCellFrequency
+        ) {
+            // 条件を満たす場合はカウンターをリセットしてアップセルに遷移
+            await util.setPersistentValue(handlerInput, "reach_limit_count", 0);
+            util.setState(handlerInput, c.UNDER_PURCHASE);
+            return handlerInput.responseBuilder
+                .addDirective({
+                    type: 'Connections.SendRequest',
+                    name: 'Upsell',
+                    payload: {
+                        InSkillProduct: {
+                            productId: c.productId,
+                        },
+                        upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
+                    },
+                    token: 'upsellToken',
+                })
+                .getResponse();
+        }
 
         // 計測開始
         util.setState(handlerInput, c.TIMER_RUNNING);
@@ -308,7 +312,18 @@ const PlaybackNearlyFinishedHandler = {
         // 商品未購入であれば終了させる
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
         if (!entitled) {
-            console.log(`商品未購入のため終了`)
+            console.log(`商品未購入のため終了`);
+
+            // 上限に到達した回数をチェック
+            const reachLimitCount = await util.getPersistentValue(handlerInput, "reach_limit_count");
+            if (reachLimitCount == null) {
+                // 上限到達回数の情報がない場合は回数をセット(次の起動時にアップセルを読み上げるようにする)
+                await util.setPersistentValue(handlerInput, "reach_limit_count", c.upCellFrequency);
+            } else {
+                // 上限到達回数の情報がある場合はインクリメント
+                await util.setPersistentValue(handlerInput, "reach_limit_count", reachLimitCount + 1);
+            }
+
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
                 .getResponse();
@@ -317,7 +332,7 @@ const PlaybackNearlyFinishedHandler = {
         // 上限に達していれば終了させる
         const nextIdx = audioInfo.idx + 1;
         if (nextIdx >= c.timerIdxLimit) {
-            console.log(`上限到達のため終了`)
+            console.log(`上限到達のため終了`);
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
                 .getResponse();
