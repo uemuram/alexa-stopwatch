@@ -7,11 +7,6 @@ const util = new CommonUtil();
 const Constant = require('./Constant');
 const c = new Constant();
 
-const timerSoundUrl_60m = 'https://uemuram.github.io/alexa-stopwatch/timer_60m.mp3';
-//const timerSoundUrl_240m = 'https://uemuram.github.io/alexa-stopwatch/timer_240m.mp3';
-const timerSoundUrl_240m = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_240m.mp3';
-
-
 class Logic {
 
     // スキル内商品の情報を取得する
