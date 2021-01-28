@@ -35,6 +35,10 @@ Resources:
                   Action:
                     - logs:*
                   Resource: arn:aws:logs:*:*:*
+                - Effect: Allow
+                  Action:
+                    - dynamodb:*
+                  Resource: "*"
   AlexaSkillFunction:
     Type: AWS::Lambda::Function
     Properties:
