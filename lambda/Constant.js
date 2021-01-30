@@ -22,8 +22,19 @@ class Constant {
         this.timerIdxLimit = 2;
         // 無料で再生できるファイルの最大インデックス(0始まり)
         this.freeTimerIdxLimit = 1;
-        // ファイル1つあたりの時間(ミリ秒)
-        this.timerSoundLengthMs = 1800000;
+        // 各ファイルの時間(ミリ秒) ※切れ目の都合で統一できなかったためそれぞれ持たせた
+        this.timerSoundLengthMs = [
+            1805000,
+            1800000,
+            1801000,
+            1799000,
+            1801000,
+            1799000,
+            1801000,
+            1799000,
+            1801000,
+            1799000,
+        ];
 
         // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
         this.upCellFrequency = 3;

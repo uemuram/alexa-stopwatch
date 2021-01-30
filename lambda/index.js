@@ -85,16 +85,17 @@ const TimerStopIntentHandler = {
                 .getResponse();
         }
 
-        // ミリ秒を結果に変換。オーディオ内の経過時間 + 時間(ミリ秒)
-        // 次トラックに進んだ直後3秒くらいは、offsetInMillisecondsが0になってしまうが、見送る
-        let time = audioInfo.offsetInMilliseconds + c.timerSoundLengthMs * audioInfo.idx;
-        if (audioInfo.idx == 0) {
-            // 最初のオーディオだった場合 : カウント分を減らす
-            time -= 4000;
-        } else {
-            // 2つ目以降のオーディオだった場合 ： 始まった瞬間が1秒なのでその分足す
-            time += 1000;
+        // 停止した時刻を計算
+        let time = 0;
+        for (let i = 0; i < audioInfo.idx; i++) {
+            // それまでの累積時刻
+            time += c.timerSoundLengthMs[i];
         }
+        // 現トラック分を加算
+        time += audioInfo.offsetInMilliseconds;
+        // カウントダウンの分を減らす
+        time -= 4000;
+
         const totalMsec = time;
         // タイマー音声内でまだ開始していなかったらキャンセル。
         if (time < 0) {
