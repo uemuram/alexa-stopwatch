@@ -14,14 +14,14 @@ class Constant {
         this.productId = 'amzn1.adg.product.8c5cd6be-8925-44ac-9e0d-8552251d8d3e';
 
         // タイマー用ファイル(プレフィックス)
-        // this.timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_';
-        this.timerSoundUrlPrefix = 'https://uemuram.github.io/alexa-stopwatch/timer_';
+        this.timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_';
+        // this.timerSoundUrlPrefix = 'https://uemuram.github.io/alexa-stopwatch/timer_';
         // トークン(プレフィックス)
         this.tokenPrefix = 'token_';
         // 対応しているファイル数(3なら3時間計測できる)
-        this.timerIdxLimit = 5;
+        this.timerIdxLimit = 3;
         // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
-        this.upCellFrequency = 5;
+        this.upCellFrequency = 3;
 
 
         // 終了用オーディオ

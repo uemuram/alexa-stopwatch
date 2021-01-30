@@ -47,7 +47,8 @@ class Logic {
             response = response.speak(message);
         }
         const url = `${c.timerSoundUrlPrefix}0.mp3`;
-        const token = `${c.tokenPrefix}0`;
+        const token = this.generateToken(0);
+
         console.log(`計測開始 : ${token}`);
         return response
             .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null, c.audioMetaData)
@@ -94,9 +95,12 @@ class Logic {
         } else {
             hhmmss = s + "秒";
         }
+        const hhmmss_read = hhmmss.replace('0分', '0ふん');
+
         return {
             all: hhmmss + ms,
             hhmmss: hhmmss,
+            hhmmss_read: hhmmss_read,
             ms: ms
         }
     }
@@ -106,15 +110,23 @@ class Logic {
         const audioPlayer = handlerInput.requestEnvelope.context.AudioPlayer;
         const token = audioPlayer.token;
         console.log(`トークン : ${token}`);
+
+        const match = token.match(new RegExp(`^${c.tokenPrefix}(.*)_.*$`));
+        const idx = match ? Number(match[1]) : null;
+        console.log(`index : ${idx}`);
+
         return {
             token: token,
             offsetInMilliseconds: audioPlayer.offsetInMilliseconds,
-            idx: Number(token.substring(c.tokenPrefix.length))
+            idx: idx
         }
     }
 
-
-
+    // トークンを発行する
+    // token_1_【文字列(ミリ秒)】
+    generateToken(idx) {
+        return `${c.tokenPrefix}${idx}_${new Date().getTime().toString()}`;
+    }
 
 }
 

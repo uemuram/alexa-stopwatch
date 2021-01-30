@@ -38,7 +38,7 @@ const LaunchRequestHandler = {
                         InSkillProduct: {
                             productId: c.productId,
                         },
-                        upsellMessage: 'ようこそ。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
+                        upsellMessage: 'ご利用ありがとうございます。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
                     },
                     token: 'upsellToken',
                 })
@@ -103,7 +103,7 @@ const TimerStopIntentHandler = {
         const timerStr = logic.getTimerStr(time);
         const speechStr = `
             <speak>
-                ${timerStr.hhmmss}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
+                ${timerStr.hhmmss_read}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
             </speak>
         `;
         console.log(`タイマー停止 : ${totalMsec}(${timerStr.all})`);
@@ -339,7 +339,8 @@ const PlaybackNearlyFinishedHandler = {
         }
 
         // 次のタイマー音声をセット
-        const nextToken = `${c.tokenPrefix}${nextIdx}`;
+        const nextToken = logic.generateToken(nextIdx);
+
         const nextSoundurl = `${c.timerSoundUrlPrefix}${nextIdx}.mp3`;
         console.log(`次トークン : ${nextToken}`);
 
