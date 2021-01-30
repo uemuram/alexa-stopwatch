@@ -19,7 +19,7 @@ class Constant {
         // トークン(プレフィックス)
         this.tokenPrefix = 'token_';
         // 対応しているファイルの最大インデックス(0始まり)
-        this.timerIdxLimit = 2;
+        this.timerIdxLimit = 9;
         // 無料で再生できるファイルの最大インデックス(0始まり)
         this.freeTimerIdxLimit = 1;
         // 各ファイルの時間(ミリ秒) ※切れ目の都合で統一できなかったためそれぞれ持たせた
@@ -37,7 +37,7 @@ class Constant {
         ];
 
         // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
-        this.upCellFrequency = 3;
+        this.upCellFrequency = 5;
 
         // 終了用オーディオ
         // this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';
