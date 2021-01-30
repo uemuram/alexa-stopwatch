@@ -31,7 +31,7 @@ class Constant {
 
         // オーディオ関連データ
         this.audioMetaData = {
-            "title": "計測",
+            "title": "計測中",
             "subtitle": "「アレクサ、ストップ」で停止",
             "art": {
                 "sources": [
@@ -47,7 +47,25 @@ class Constant {
                     }
                 ]
             }
-        }
+        };
+
+        this.timerFinishMetaData = {
+            "title": "-",
+            "art": {
+                "sources": [
+                    {
+                        "url": "https://uemuram.github.io/alexa-stopwatch/audio_art.png"
+                    }
+                ]
+            },
+            "backgroundImage": {
+                "sources": [
+                    {
+                        "url": "https://uemuram.github.io/alexa-stopwatch/audio_backgroundImage.png"
+                    }
+                ]
+            }
+        };
 
     }
 

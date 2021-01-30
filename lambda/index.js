@@ -325,7 +325,7 @@ const PlaybackNearlyFinishedHandler = {
             }
 
             return handlerInput.responseBuilder
-                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
+                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
                 .getResponse();
         }
 
@@ -334,7 +334,7 @@ const PlaybackNearlyFinishedHandler = {
         if (nextIdx >= c.timerIdxLimit) {
             console.log(`上限到達のため終了`);
             return handlerInput.responseBuilder
-                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, null)
+                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
                 .getResponse();
         }
 
