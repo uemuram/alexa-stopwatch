@@ -14,15 +14,19 @@ class Constant {
         this.productId = 'amzn1.adg.product.8c5cd6be-8925-44ac-9e0d-8552251d8d3e';
 
         // タイマー用ファイル(プレフィックス)
-        // this.timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_';
-        this.timerSoundUrlPrefix = 'https://uemuram.github.io/alexa-stopwatch/timer_';
+        this.timerSoundUrlPrefix = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_';
+        // this.timerSoundUrlPrefix = 'https://uemuram.github.io/alexa-stopwatch/timer_';
         // トークン(プレフィックス)
         this.tokenPrefix = 'token_';
-        // 対応しているファイル数(3なら3時間計測できる)
-        this.timerIdxLimit = 5;
-        // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
-        this.upCellFrequency = 5;
+        // 対応しているファイルの最大インデックス(0始まり)
+        this.timerIdxLimit = 2;
+        // 無料で再生できるファイルの最大インデックス(0始まり)
+        this.freeTimerIdxLimit = 1;
+        // ファイル1つあたりの時間(ミリ秒)
+        this.timerSoundLengthMs = 1800000;
 
+        // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
+        this.upCellFrequency = 3;
 
         // 終了用オーディオ
         // this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';
@@ -31,7 +35,7 @@ class Constant {
 
         // オーディオ関連データ
         this.audioMetaData = {
-            "title": "計測",
+            "title": "計測中",
             "subtitle": "「アレクサ、ストップ」で停止",
             "art": {
                 "sources": [
@@ -47,7 +51,25 @@ class Constant {
                     }
                 ]
             }
-        }
+        };
+
+        this.timerFinishMetaData = {
+            "title": "-",
+            "art": {
+                "sources": [
+                    {
+                        "url": "https://uemuram.github.io/alexa-stopwatch/audio_art.png"
+                    }
+                ]
+            },
+            "backgroundImage": {
+                "sources": [
+                    {
+                        "url": "https://uemuram.github.io/alexa-stopwatch/audio_backgroundImage.png"
+                    }
+                ]
+            }
+        };
 
     }
 
