@@ -87,10 +87,13 @@ const TimerStopIntentHandler = {
 
         // ミリ秒を結果に変換。オーディオ内の経過時間 + 時間(ミリ秒)
         // 次トラックに進んだ直後3秒くらいは、offsetInMillisecondsが0になってしまうが、見送る
-        let time = audioInfo.offsetInMilliseconds + 3600000 * audioInfo.idx;
+        let time = audioInfo.offsetInMilliseconds + c.timerSoundLengthMs * audioInfo.idx;
         if (audioInfo.idx == 0) {
-            // 最初の1時間分だった場合 : カウント分を減らす
+            // 最初のオーディオだった場合 : カウント分を減らす
             time -= 4000;
+        } else {
+            // 2つ目以降のオーディオだった場合 ： 始まった瞬間が1秒なのでその分足す
+            time += 1000;
         }
         const totalMsec = time;
         // タイマー音声内でまだ開始していなかったらキャンセル。
@@ -309,9 +312,12 @@ const PlaybackNearlyFinishedHandler = {
                 .getResponse();
         }
 
+        // 次のインデックス
+        const nextIdx = audioInfo.idx + 1;
+
         // 商品未購入であれば終了させる
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
-        if (!entitled) {
+        if (!entitled && nextIdx > c.freeTimerIdxLimit) {
             console.log(`商品未購入のため終了`);
 
             // 上限に到達した回数をチェック
@@ -330,8 +336,7 @@ const PlaybackNearlyFinishedHandler = {
         }
 
         // 上限に達していれば終了させる
-        const nextIdx = audioInfo.idx + 1;
-        if (nextIdx >= c.timerIdxLimit) {
+        if (nextIdx > c.timerIdxLimit) {
             console.log(`上限到達のため終了`);
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
