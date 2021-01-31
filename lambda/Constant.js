@@ -40,8 +40,8 @@ class Constant {
         this.upCellFrequency = 5;
 
         // 終了用オーディオ
-        this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';
-        // this.timerFinishUrl = 'https://uemuram.github.io/alexa-stopwatch/timer_finish.mp3';
+        //        this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';
+        this.timerFinishUrl = 'https://uemuram.github.io/alexa-stopwatch/timer_finish.mp3';
         this.timerFinishToken = 'timer_finish';
 
         // オーディオ関連データ
