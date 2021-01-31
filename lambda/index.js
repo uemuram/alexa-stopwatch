@@ -262,6 +262,13 @@ const BuyResponseHandler = {
     async handle(handlerInput) {
         console.log('【購入処理から復帰】');
 
+        // 購入した場合は記録
+        if (handlerInput.requestEnvelope.request.status.code === '200'
+            && handlerInput.requestEnvelope.request.payload.purchaseResult == 'ACCEPTED') {
+            console.log('購入した');
+            await util.setPersistentValue(handlerInput, "purchased", true);
+        }
+
         util.setState(handlerInput, c.CONFIRM_RUN_TIMER);
         return handlerInput.responseBuilder
             .speak(`続いて計測を行いますか?`)
