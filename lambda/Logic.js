@@ -95,7 +95,7 @@ class Logic {
         } else {
             hhmmss = s + "秒";
         }
-        const hhmmss_read = hhmmss.replace('0分', '0ふん');
+        const hhmmss_read = hhmmss.replace('間0分', '間0ふん');
 
         return {
             all: hhmmss + ms,
