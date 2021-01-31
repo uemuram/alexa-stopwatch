@@ -25,7 +25,7 @@ const LaunchRequestHandler = {
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
         if (
             !entitled
-            && await util.getPersistentValue(handlerInput, "reach_limit_count") >= c.upCellFrequency
+            && await util.getPersistentValue(handlerInput, "reach_limit_count") >= c.upSellFrequency
         ) {
             // 条件を満たす場合はカウンターをリセットしてアップセルに遷移
             await util.setPersistentValue(handlerInput, "reach_limit_count", 0);
@@ -332,7 +332,7 @@ const PlaybackNearlyFinishedHandler = {
             const reachLimitCount = await util.getPersistentValue(handlerInput, "reach_limit_count");
             if (reachLimitCount == null) {
                 // 上限到達回数の情報がない場合は回数をセット(次の起動時にアップセルを読み上げるようにする)
-                await util.setPersistentValue(handlerInput, "reach_limit_count", c.upCellFrequency);
+                await util.setPersistentValue(handlerInput, "reach_limit_count", c.upSellFrequency);
             } else {
                 // 上限到達回数の情報がある場合はインクリメント
                 await util.setPersistentValue(handlerInput, "reach_limit_count", reachLimitCount + 1);
