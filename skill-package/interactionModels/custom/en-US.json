@@ -1,0 +1,199 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "simple stopwatch",
+            "intents": [
+                {
+                    "name": "TimerStartIntent",
+                    "slots": [
+                        {
+                            "name": "TimerStartOrder",
+                            "type": "TIMER_START_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {TimerStartOrder} "
+                    ]
+                },
+                {
+                    "name": "WhatCanIBuyIntent",
+                    "slots": [
+                        {
+                            "name": "WhatCanIBuyOrder",
+                            "type": "WHAT_CAN_I_BUY_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {WhatCanIBuyOrder} "
+                    ]
+                },
+                {
+                    "name": "BuyIntent",
+                    "slots": [
+                        {
+                            "name": "BuyOrder",
+                            "type": "BUY_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {BuyOrder} "
+                    ]
+                },
+                {
+                    "name": "DontBuyIntent",
+                    "slots": [
+                        {
+                            "name": "DontBuyOrder",
+                            "type": "DONT_BUY_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {DontBuyOrder} "
+                    ]
+                },
+                {
+                    "name": "RefundSkillItemIntent",
+                    "slots": [
+                        {
+                            "name": "RefundSkillItemOrder",
+                            "type": "REFUND_SKILL_ITEM_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {RefundSkillItemOrder} "
+                    ]
+                },
+                {
+                    "name": "DenyIntent",
+                    "slots": [
+                        {
+                            "name": "DenyOrder",
+                            "type": "DENY_ORDER"
+                        }
+                    ],
+                    "samples": [
+                        " {DenyOrder} "
+                    ]
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                }
+            ],
+            "types": [
+                {
+                    "name": "TIMER_START_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "calc",
+                                "synonyms": [
+                                    "calc start"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "WHAT_CAN_I_BUY_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "what can i buy",
+                                "synonyms": [
+                                    "what can i buyed"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "BUY_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "buy extension pack",
+                                "synonyms": [
+                                    "plese buy extension pack"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "DONT_BUY_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "not buy",
+                                "synonyms": [
+                                    "dont buy"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "REFUND_SKILL_ITEM_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "henpin pack",
+                                "synonyms": [
+                                    "plesse henpin"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "DENY_ORDER",
+                    "values": [
+                        {
+                            "id": "order",
+                            "name": {
+                                "value": "no",
+                                "synonyms": [
+                                    "noo"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
