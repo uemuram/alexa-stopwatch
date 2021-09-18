@@ -80,8 +80,8 @@ class CommonUtil {
     // スロットにインテント名 & スロット名に厳密にマッチしたかを判定する
     checkStrictSlotMatch(handlerInput, intentName, slotName) {
         // インテント名のチェック
-        if (!Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' ||
-            !Alexa.getIntentName(handlerInput.requestEnvelope) === intentName) {
+        if (Alexa.getRequestType(handlerInput.requestEnvelope) !== 'IntentRequest' ||
+            Alexa.getIntentName(handlerInput.requestEnvelope) !== intentName) {
             return false;
         }
         // スロットの取得ステータスをチェック
@@ -91,6 +91,17 @@ class CommonUtil {
         } else {
             return false;
         }
+    }
+
+    // 状態とインテントにマッチしたかを判定する
+    checkIntentAndStateMatch(handlerInput, intentName, state) {
+        // インテント名のチェック
+        if (Alexa.getRequestType(handlerInput.requestEnvelope) !== 'IntentRequest' ||
+            Alexa.getIntentName(handlerInput.requestEnvelope) !== intentName) {
+            return false;
+        }
+        // 状態チェック
+        return this.checkState(handlerInput, state);
     }
 
     // パラメータストアから値を取得(再利用のために取得後にセッションに格納)
@@ -137,36 +148,47 @@ class CommonUtil {
             + '-' + ('0' + date.getDate()).slice(-2);
     }
 
-    // 整数部と小数部の数値から結果の数値を返す。Alexaの音声認識の都合で正しく認識できない場合は補正する。
-    adjustDecimalValue(integerValue, decimalValue) {
-        // 整数部と小数部を結合
-        let value = parseInt(integerValue);
-        if (decimalValue) {
-            value += parseFloat(`0.${decimalValue}`);
-        }
+    // 乱数を返す
+    // random(3)であれば、0,1,2のどれかを返す
+    random(n) {
+        return Math.floor(Math.random() * n);
+    }
 
-        // 値が正しくとれない場合が多いためケア
-        if (value >= 1000) {
-            console.log('値修復');
-            let valueStr = value + '';
-            const valueChars = valueStr.split('');
+    // プログレッシブ応答(重い処理が完了する前に先行して返す応答)を呼ぶ
+    // 使い方 : await util.callDirectiveService(handlerInput, '応答メッセージ');
+    // exports.handler に .withApiClient(new Alexa.DefaultApiClient())を追加する必要あり
+    callDirectiveService(handlerInput, message) {
+        console.log(`プログレッシブ応答 : ${message}`);
+        const requestEnvelope = handlerInput.requestEnvelope;
+        const directiveServiceClient = handlerInput.serviceClientFactory.getDirectiveServiceClient();
+        const requestId = requestEnvelope.request.requestId;
+        // build the progressive response directive
+        const directive = {
+            header: {
+                requestId,
+            },
+            directive: {
+                type: 'VoicePlayer.Speak',
+                speech: `${message}`,
+            },
+        };
+        // send directive
+        return directiveServiceClient.enqueue(directive);
+    }
 
-            if (valueChars[2] == '1' || valueChars[2] == '8') {
-                // 72.6が7216や7286になってしまう問題の対応
-                console.log('修正パターンA');
-                value = parseFloat(`${valueChars[0]}${valueChars[1]}.${valueChars[3]}`);
-            } else if (valueChars[1] == '0') {
-                // 75.3が7053になってしまう問題の対応
-                console.log('修正パターンB');
-                value = parseFloat(`${valueChars[0]}${valueChars[2]}.${valueChars[3]}`);
-            } else {
-                // 72.33が7233になってしまう問題の対応
-                console.log('修正パターンC');
-                value = parseFloat(`${valueChars[0]}${valueChars[1]}.${valueChars[2]}${valueChars[3]}`);
-            }
-            console.log(`${valueStr} -> ${value}`);
-        }
-        return value;
+    // APL利用可能か判定する
+    isAvailableAPL(handlerInput) {
+        return Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL'];
+    }
+
+    // 指定した秒数(ミリ秒)待つ
+    // await util.sleep(3000); で3秒待つ
+    sleep(miliSec) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, miliSec)
+        })
     }
 
 }
