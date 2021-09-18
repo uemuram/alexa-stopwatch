@@ -1,6 +1,9 @@
 const AWS = require('aws-sdk');
 const Alexa = require('ask-sdk-core');
 
+const ConstantByLang = require('./ConstantByLang');
+const constantByLang = new ConstantByLang();
+
 class CommonUtil {
 
     // 状態をチェック
@@ -189,6 +192,13 @@ class CommonUtil {
                 resolve()
             }, miliSec)
         })
+    }
+
+    // 言語に応じた値を取得する
+    getConstantByLang(handlerInput, key) {
+        const locale = handlerInput.requestEnvelope.request.locale; // ja-JP,en-US など
+        const language = locale.split('-')[0]; // ja,en など
+        return constantByLang.constant[language][key];
     }
 
 }

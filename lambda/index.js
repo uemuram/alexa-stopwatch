@@ -47,7 +47,7 @@ const LaunchRequestHandler = {
 
         // 計測開始
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return logic.getStartTimerResponse(handlerInput, '計測を開始します。');
+        return logic.getStartTimerResponse(handlerInput, util.getConstantByLang(handlerInput, 'START_MEASURE_MESSAGE'));
     }
 };
 
@@ -516,6 +516,7 @@ const ErrorHandler = {
 const RequestLog = {
     process(handlerInput) {
         //console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
+        console.log("LOCALE = " + handlerInput.requestEnvelope.request.locale);
         console.log("HANDLER INPUT = " + JSON.stringify(handlerInput));
         console.log("REQUEST TYPE =  " + Alexa.getRequestType(handlerInput.requestEnvelope));
         return;
