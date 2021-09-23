@@ -194,12 +194,18 @@ class CommonUtil {
         })
     }
 
+    // 言語を取得する
+    getLang(handlerInput) {
+        const locale = handlerInput.requestEnvelope.request.locale; // ja-JP,en-US など
+        return locale.split('-')[0]; // ja,en など
+    }
+
     // 言語に応じた値を取得する
     getConstantByLang(handlerInput, key) {
-        const locale = handlerInput.requestEnvelope.request.locale; // ja-JP,en-US など
-        const language = locale.split('-')[0]; // ja,en など
+        const language = this.getLang(handlerInput);
         return constantByLang.constant[language][key];
     }
+
 
 }
 

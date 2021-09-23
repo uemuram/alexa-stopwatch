@@ -38,7 +38,7 @@ const LaunchRequestHandler = {
                         InSkillProduct: {
                             productId: c.productId,
                         },
-                        upsellMessage: 'ご利用ありがとうございます。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
+                        upsellMessage: util.getConstantByLang(handlerInput, 'MESSAGE_UPSELL')
                     },
                     token: 'upsellToken',
                 })
@@ -47,7 +47,7 @@ const LaunchRequestHandler = {
 
         // 計測開始
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return logic.getStartTimerResponse(handlerInput, util.getConstantByLang(handlerInput, 'START_MEASURE_MESSAGE'));
+        return logic.getStartTimerResponse(handlerInput, util.getConstantByLang(handlerInput, 'MESSAGE_START_MEASURE'));
     }
 };
 
@@ -62,7 +62,7 @@ const TimerStartIntentHandler = {
     async handle(handlerInput) {
         console.log('【計測開始】');
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return logic.getStartTimerResponse(handlerInput, '計測を開始します。');
+        return logic.getStartTimerResponse(handlerInput, util.getConstantByLang(handlerInput, 'MESSAGE_START_MEASURE'));
     }
 };
 
@@ -106,7 +106,7 @@ const TimerStopIntentHandler = {
         if (time < 0) {
             return handlerInput.responseBuilder
                 .addAudioPlayerStopDirective()
-                .speak('停止します。')
+                .speak(util.getConstantByLang(handlerInput, 'MESSAGE_STOP_MEASURE'))
                 .getResponse();
         }
         const timerStr = logic.getTimerStr(time);
@@ -121,12 +121,12 @@ const TimerStopIntentHandler = {
         const cardTitle = timerStr.all;
         let cardBody = ""
             + "TIPS\n"
-            + "・計測を再開　：「アレクサ、再開」\n"
-            + "・最初から計測：「アレクサ、最初から」";
+            + util.getConstantByLang(handlerInput, 'CARD_TIPS_RESUME') + "\n"
+            + util.getConstantByLang(handlerInput, 'CARD_TIPS_START_OVER');
         // 未購入のときのみ拡張パックの案内を付与
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
         if (!entitled) {
-            cardBody += '\n・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」';
+            cardBody += '\n' + util.getConstantByLang(handlerInput, 'CARD_TIPS_BUY_ORDER');
         }
 
         let response = handlerInput.responseBuilder
@@ -136,7 +136,7 @@ const TimerStopIntentHandler = {
 
         // 画面利用可能であれば画面を追加
         if (Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL']) {
-            let aplDocument = util.deepCopy(require('./apl/TemplateDocument.json'));
+            let aplDocument = util.deepCopy(require(`./apl/TemplateDocument_${util.getLang(handlerInput)}.json`));
             let aplDataSource = require('./apl/TemplateDataSource.json');
             aplDataSource.data.timerStr = timerStr.all;
             // 購入済みなら拡張パックの案内を外す
@@ -167,7 +167,7 @@ const TimerRestartIntentHandler = {
         console.log('【計測再開】');
 
         util.setState(handlerInput, c.TIMER_RUNNING);
-        return logic.getRestartTimerResponse(handlerInput, '計測を再開します。');
+        return logic.getRestartTimerResponse(handlerInput, util.getConstantByLang(handlerInput, 'MESSAGE_RESUME_MEASURE'));
     }
 };
 
@@ -187,21 +187,14 @@ const WhatCanIBuyIntentHandler = {
         if (entitled) {
             util.setState(handlerInput, c.CONFIRM_RUN_TIMER);
             return handlerInput.responseBuilder
-                .speak(`
-                    ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。
-                    拡張パックはすでにお持ちです。
-                    続いて計測を行いますか?
-                `)
-                .reprompt('計測を行いますか?')
+                .speak(util.getConstantByLang(handlerInput, 'MESSAGE_PRODUCT_DESCRIPTION_ALREADY_PURCHASED'))
+                .reprompt(util.getConstantByLang(handlerInput, 'MESSAGE_CONFIRM_CONTINUE_MEASURE'))
                 .getResponse();
         };
 
         util.setState(handlerInput, c.CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
-            .speak(`
-                ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。
-                詳細を聞きますか?
-            `)
+            .speak(util.getConstantByLang(handlerInput, 'MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED'))
             .reprompt('詳細を聞きますか?')
             .getResponse();
     },
@@ -221,7 +214,7 @@ const DoNothingHandler = {
 
         util.setState(handlerInput, c.SKILL_END);
         return handlerInput.responseBuilder
-            .speak('またご利用ください。')
+            .speak(util.getConstantByLang(handlerInput, 'MESSAGE_PLEASE_REUSE'))
             .addAudioPlayerStopDirective()
             .getResponse();
     },
@@ -276,8 +269,8 @@ const BuyResponseHandler = {
 
         util.setState(handlerInput, c.CONFIRM_RUN_TIMER);
         return handlerInput.responseBuilder
-            .speak(`続いて計測を行いますか?`)
-            .reprompt('計測を行いますか?')
+            .speak(util.getConstantByLang(handlerInput, 'MESSAGE_CONFIRM_CONTINUE_MEASURE'))
+            .reprompt(util.getConstantByLang(handlerInput, 'MESSAGE_CONFIRM_CONTINUE_MEASURE'))
             .getResponse();
     },
 };
@@ -455,21 +448,12 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     async handle(handlerInput) {
-        let speakOutput = ''
-            + 'シンプルなストップウォッチスキルです。'
-            + 'スキルを起動するとすぐにストップウォッチがスタートし、カウント音が流れている間、時間計測を行います。'
-            + 'ストップウォッチを止めるにはカウント音が流れているときに「アレクサ、ストップ」と言ってください。'
-            + 'ストップ後に計測を再開するには、「アレクサ、再開」と言ってください。'
-            + 'ストップ後に新たに計測を始める場合は、「アレクサ、最初から」と言ってください。'
-            + 'また、計測時間は最大1時間ですが、拡張パックを購入すると最大4時間に拡張できます。'
-            + '拡張する場合は、「アレクサ、シンプルストップウォッチで拡張パック」、のように言ってください。'
-            + '計測を行いますか?'
-            ;
+        let speakOutput = util.getConstantByLang(handlerInput, 'MESSAGE_HELP')
 
         util.setState(handlerInput, c.CONFIRM_RUN_TIMER);
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .reprompt('計測を行いますか?')
+            .reprompt(util.getConstantByLang(handlerInput, 'MESSAGE_CONFIRM_MEASURE'))
             .getResponse();
     }
 };
@@ -484,7 +468,7 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `想定外の呼び出しが発生しました。もう一度お試しください。`;
+        const speakOutput = util.getConstantByLang(handlerInput, 'MESSAGE_UNEXPECTED_CALL');
         console.log(intentName);
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -502,7 +486,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `エラーが発生しました。もう一度お試しください。`;
+        const speakOutput = util.getConstantByLang(handlerInput, 'MESSAGE_ERROR');
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
