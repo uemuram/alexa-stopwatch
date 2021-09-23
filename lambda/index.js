@@ -67,11 +67,6 @@ const TimerStartIntentHandler = {
 };
 
 // 計測停止
-//TODO rectangleでエラーになっているかも?
-//2021/02/02/[4]ad10cc3f3f6a4145a55f75556aa7aad8
-// errorで検索
-// https://developer.amazon.com/ja-JP/docs/alexa/alexa-presentation-language/use-apl-with-ask-sdk.html
-// if (Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL']){
 const TimerStopIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
