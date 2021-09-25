@@ -67,7 +67,7 @@ class Constant {
 
                 CARD_TIPS_RESUME: '・To restart the measurement     ："Alexa, resume."',
                 CARD_TIPS_START_OVER: '・To measure from the beginning  ："Alexa, start over."',
-                CARD_TIPS_BUY_ORDER: '・To extend the measurement time ："Alexa, ask simple stopwatch to describe the expansion pack."',
+                CARD_TIPS_BUY_ORDER: '・To extend the measurement time ："Alexa, ask simple stopwatch to expansion pack."',
 
                 AUDIO_TITLE: 'Measuring...',
                 AUDIO_SUBTITLE: 'To stop the stopwatch, "Alexa, stop".',
