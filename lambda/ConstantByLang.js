@@ -31,6 +31,9 @@ class Constant {
                 CARD_TIPS_RESUME: '・計測を再開　：「アレクサ、再開」',
                 CARD_TIPS_START_OVER: '・最初から計測：「アレクサ、最初から」',
                 CARD_TIPS_BUY_ORDER: '・時間を延ばす：「アレクサ、シンプルストップウォッチで拡張パック」',
+
+                AUDIO_TITLE: '計測',
+                AUDIO_SUBTITLE: '「アレクサ、ストップ」で停止',
             },
 
             en: {
@@ -63,6 +66,9 @@ class Constant {
                 CARD_TIPS_RESUME: '・To restart the measurement     ："Alexa, resume."',
                 CARD_TIPS_START_OVER: '・To measure from the beginning  ："Alexa, start over."',
                 CARD_TIPS_BUY_ORDER: '・To extend the measurement time ："Alexa, ask simple stopwatch to describe the expansion pack."',
+
+                AUDIO_TITLE: 'Measuring...',
+                AUDIO_SUBTITLE: 'To stop the stopwatch, "Alexa, stop".',
             }
         }
     }

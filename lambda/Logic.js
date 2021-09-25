@@ -51,7 +51,7 @@ class Logic {
 
         console.log(`計測開始 : ${token}`);
         return response
-            .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null, c.audioMetaData)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', url, token, 0, null, this.getAudioMetaData(handlerInput))
             .getResponse();
     }
 
@@ -73,7 +73,7 @@ class Logic {
             response = response.speak(message);
         }
         return response
-            .addAudioPlayerPlayDirective('REPLACE_ALL', url, audioInfo.token, audioInfo.offsetInMilliseconds, null, c.audioMetaData)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', url, audioInfo.token, audioInfo.offsetInMilliseconds, null, this.getAudioMetaData(handlerInput))
             .getResponse();
     }
 
@@ -126,6 +126,14 @@ class Logic {
     // token_1_【文字列(ミリ秒)】
     generateToken(idx) {
         return `${c.tokenPrefix}${idx}_${new Date().getTime().toString()}`;
+    }
+
+    // オーディオのメタデータを取得
+    getAudioMetaData(handlerInput) {
+        let audioMeataData = c.audioMetaData;
+        audioMeataData.title = util.getConstantByLang(handlerInput, "AUDIO_TITLE");
+        audioMeataData.subtitle = util.getConstantByLang(handlerInput, "AUDIO_SUBTITLE");
+        return audioMeataData;
     }
 
 }

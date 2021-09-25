@@ -351,7 +351,7 @@ const PlaybackNearlyFinishedHandler = {
         console.log(`次トークン : ${nextToken}`);
 
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, audioInfo.token, c.audioMetaData)
+            .addAudioPlayerPlayDirective('ENQUEUE', nextSoundurl, nextToken, 0, audioInfo.token, logic.getAudioMetaData(handlerInput))
             .getResponse();
     }
 };

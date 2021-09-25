@@ -46,8 +46,8 @@ class Constant {
 
         // オーディオ関連データ
         this.audioMetaData = {
-            "title": "計測",
-            "subtitle": "「アレクサ、ストップ」で停止",
+            "title": "__replace__",
+            "subtitle": "__replace__",
             "art": {
                 "sources": [
                     {
