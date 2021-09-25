@@ -14,6 +14,7 @@ class Constant {
                 MESSAGE_PRODUCT_DESCRIPTION_ALREADY_PURCHASED: 'ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。'
                     + '拡張パックはすでにお持ちです。続いて計測を行いますか?',
                 MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED: 'ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?',
+                MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED_REPROMPT: '詳細を聞きますか?',
 
                 MESSAGE_ERROR: 'エラーが発生しました。もう一度お試しください。',
                 MESSAGE_UNEXPECTED_CALL: '想定外の呼び出しが発生しました。もう一度お試しください。',
@@ -49,6 +50,7 @@ class Constant {
                     + 'You have the expansion pack already. Do you want to continue measuring?',
                 MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED: 'The maximum measurement time of the stopwatch is one hour, '
                     + 'but it can be further extended by purchasing an expansion pack. Would you like to hear more?',
+                MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED_REPROMPT: 'Would you like to hear more?',
 
                 MESSAGE_ERROR: 'An error has occurred. Please try again.',
                 MESSAGE_UNEXPECTED_CALL: 'An unexpected call has occurred. Please try again.',

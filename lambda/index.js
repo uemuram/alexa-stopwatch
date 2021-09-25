@@ -190,7 +190,7 @@ const WhatCanIBuyIntentHandler = {
         util.setState(handlerInput, c.CONFIRM_PURCHASE);
         return handlerInput.responseBuilder
             .speak(util.getConstantByLang(handlerInput, 'MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED'))
-            .reprompt('詳細を聞きますか?')
+            .reprompt(util.getConstantByLang(handlerInput, 'MESSAGE_PRODUCT_DESCRIPTION_NOT_PURCHASED_REPROMPT'))
             .getResponse();
     },
 };
