@@ -115,9 +115,19 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "calc",
+                                "value": "measurement",
                                 "synonyms": [
-                                    "calc start"
+                                    "measure",
+                                    "measure please",
+                                    "please measure",
+                                    "time it",
+                                    "please time it",
+                                    "time it please",
+                                    "start over",
+                                    "restart",
+                                    "start again",
+                                    "stopwatch",
+                                    "simple stopwatch"
                                 ]
                             }
                         }
@@ -129,9 +139,21 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "what can i buy",
+                                "value": "What can I buy",
                                 "synonyms": [
-                                    "what can i buyed"
+                                    "I want to pay",
+                                    "I want to pay for it",
+                                    "Premium Content",
+                                    "Tell me about premium Content",
+                                    "describe the premium Content",
+                                    "paid content",
+                                    "Tell me about paid content",
+                                    "describe the paid content",
+                                    "expansion pack",
+                                    "Tell me about expansion pack",
+                                    "describe the expansion pack",
+                                    "ask simple stopwatch to describe the expansion pack"                                
+
                                 ]
                             }
                         }
@@ -143,9 +165,20 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "buy extension pack",
+                                "value": "buy the expansion pack",
                                 "synonyms": [
-                                    "plese buy extension pack"
+                                    "plese buy the expansion pack",
+                                    "Buy an expansion pack",
+                                    "Get the expansion pack",
+                                    "Sign up for the expansion pack",
+                                    "Give me an expansion pack",
+                                    "Give me the expansion pack",
+                                    "I need an expansion pack",
+                                    "I want to buy",
+                                    "I want to buy it",
+                                    "I would like to purchase",
+                                    "Go on",
+                                    "Go ahead"
                                 ]
                             }
                         }
@@ -157,9 +190,12 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "not buy",
+                                "value": "I'm not buying it",
                                 "synonyms": [
-                                    "dont buy"
+                                    "I'm not buying",
+                                    "I will not purchase",
+                                    "No purchase",
+                                    "I will not buy"
                                 ]
                             }
                         }
@@ -171,10 +207,11 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "henpin pack",
+                                "value": "Return the expansion pack",
                                 "synonyms": [
-                                    "plesse henpin"
-                                ]
+                                    "I want to return the expansion pack",
+                                    "Refund expansion pack",
+                                    "Cancel the expansion pack"                                ]
                             }
                         }
                     ]
@@ -185,10 +222,7 @@
                         {
                             "id": "order",
                             "name": {
-                                "value": "no",
-                                "synonyms": [
-                                    "noo"
-                                ]
+                                "value": "no"
                             }
                         }
                     ]
