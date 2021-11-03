@@ -104,16 +104,12 @@ const TimerStopIntentHandler = {
                 .speak(util.getConstantByLang(handlerInput, 'MESSAGE_STOP_MEASURE'))
                 .getResponse();
         }
-        const timerStr = logic.getTimerStr(time);
-        const speechStr = `
-            <speak>
-                ${timerStr.hhmmss_read}<say-as interpret-as="digits">${timerStr.ms}</say-as>です。
-            </speak>
-        `;
-        console.log(`タイマー停止 : ${totalMsec}(${timerStr.all})`);
+        const timerStr = logic.getTimerStr(time, handlerInput);
+        const speechStr = timerStr.read;
+        console.log(`タイマー停止 : ${totalMsec}(${timerStr.write})`);
 
         // カード情報を整備
-        const cardTitle = timerStr.all;
+        const cardTitle = timerStr.write;
         let cardBody = ""
             + "TIPS\n"
             + util.getConstantByLang(handlerInput, 'CARD_TIPS_RESUME') + "\n"
@@ -133,7 +129,7 @@ const TimerStopIntentHandler = {
         if (Alexa.getSupportedInterfaces(handlerInput.requestEnvelope)['Alexa.Presentation.APL']) {
             let aplDocument = util.deepCopy(require(`./apl/TemplateDocument_${util.getLang(handlerInput)}.json`));
             let aplDataSource = require('./apl/TemplateDataSource.json');
-            aplDataSource.data.timerStr = timerStr.all;
+            aplDataSource.data.timerStr = timerStr.write;
             // 購入済みなら拡張パックの案内を外す
             if (entitled) {
                 aplDocument.mainTemplate.items[0].items.pop();

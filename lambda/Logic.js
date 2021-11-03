@@ -78,7 +78,7 @@ class Logic {
     }
 
     // ミリ秒を読み上げ可能な時間形式にする
-    getTimerStr(time) {
+    getTimerStr(time, handlerInput) {
         time = Math.round(time / 10) * 10;
         let h = Math.floor(time / 3600000);
         time %= 3600000
@@ -87,21 +87,53 @@ class Logic {
         let s = Math.floor(time / 1000);
         time %= 1000;
         let ms = ('000' + time).slice(-4).substring(1, 3);
-        let hhmmss = '';
-        if (h > 0) {
-            hhmmss = h + "時間" + m + "分" + s + "秒";
-        } else if (m > 0) {
-            hhmmss = m + "分" + s + "秒";
-        } else {
-            hhmmss = s + "秒";
-        }
-        const hhmmss_read = hhmmss.replace('間0分', '間0ふん');
 
+        // 言語を取得
+        const lang = util.getLang(handlerInput);
+
+        let read, write;
+        switch (lang) {
+            case 'ja':
+                if (h > 0) {
+                    let hhmmss = `${h}時間${m}分${s}秒`;
+                } else if (m > 0) {
+                    let hhmmss = `${m}分${s}秒`;
+                } else {
+                    let hhmmss = `${s}秒`;
+                }
+                const hhmmss_read = hhmmss.replace('間0分', '間0ふん');
+                read = `
+                    <speak>
+                        ${hhmmss_read}<say-as interpret-as="digits">${ms}</say-as>です。
+                    </speak>
+                `;
+                write = hhmmss + ms;
+                break;
+            case 'en':
+                const hour = h == 1 ? "hour" : "hours";
+                const minute = m == 1 ? "minute" : "minutes";
+
+                if (h > 0) {
+                    read = `<speak>
+                                ${h}${hour}${m}${minute}${s}point<say-as interpret-as="digits">${ms}</say-as>seconds
+                            </speak>`;
+                } else if (m > 0) {
+                    read = `<speak>
+                                ${m}${minute}${s}point<say-as interpret-as="digits">${ms}</say-as>seconds
+                            </speak>`;
+                } else {
+                    read = `<speak>
+                                ${s}point<say-as interpret-as="digits">${ms}</say-as>seconds
+                            </speak>`;
+                }
+                write = `${('00' + h).slice(-2)}:${('00' + m).slice(-2)}:${('00' + s).slice(-2)}.${ms}`;
+                break;
+            default:
+                break;
+        }
         return {
-            all: hhmmss + ms,
-            hhmmss: hhmmss,
-            hhmmss_read: hhmmss_read,
-            ms: ms
+            read: read,
+            write: write,
         }
     }
 
