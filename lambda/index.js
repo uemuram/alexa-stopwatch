@@ -328,7 +328,7 @@ const PlaybackNearlyFinishedHandler = {
             }
 
             return handlerInput.responseBuilder
-                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
+                .addAudioPlayerPlayDirective('ENQUEUE', logic.getTimerFinishUrl(handlerInput), c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
                 .getResponse();
         }
 
@@ -336,14 +336,14 @@ const PlaybackNearlyFinishedHandler = {
         if (nextIdx > c.timerIdxLimit) {
             console.log(`上限到達のため終了`);
             return handlerInput.responseBuilder
-                .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
+                .addAudioPlayerPlayDirective('ENQUEUE', logic.getTimerFinishUrl(handlerInput), c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
                 .getResponse();
         }
 
         // 次のタイマー音声をセット
         const nextToken = logic.generateToken(nextIdx);
 
-        const nextSoundurl = `${c.timerSoundUrlPrefix}${nextIdx}.mp3`;
+        const nextSoundurl = `${logic.getTimerSoundUrlPrefix(handlerInput)}${nextIdx}.mp3`;
         console.log(`次トークン : ${nextToken}`);
 
         return handlerInput.responseBuilder

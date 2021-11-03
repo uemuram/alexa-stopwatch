@@ -46,7 +46,7 @@ class Logic {
         if (message) {
             response = response.speak(message);
         }
-        const url = `${c.timerSoundUrlPrefix}0.mp3`;
+        const url = `${this.getTimerSoundUrlPrefix(handlerInput)}0.mp3`;
         const token = this.generateToken(0);
 
         console.log(`計測開始 : ${token}`);
@@ -66,7 +66,7 @@ class Logic {
                 .addAudioPlayerStopDirective()
                 .getResponse();
         }
-        const url = `${c.timerSoundUrlPrefix}${audioInfo.idx}.mp3`;
+        const url = `${this.getTimerSoundUrlPrefix(handlerInput)}${audioInfo.idx}.mp3`;
         console.log(`計測再開 : ${audioInfo.token}(${audioInfo.offsetInMilliseconds}～)`);
 
         if (message) {
@@ -135,6 +135,22 @@ class Logic {
             read: read,
             write: write,
         }
+    }
+
+    // mp3のURLを取得(プレフィックス)
+    getTimerSoundUrlPrefix(handlerInput) {
+        const lang = util.getLang(handlerInput);
+        const urlPrefix = `${c.resourcesParentUrl}/${lang}/timer_`;
+        console.log(`urlPrefix : ${urlPrefix}`);
+        return urlPrefix;
+    }
+
+    // mp3のURLを取得(終了)
+    getTimerFinishUrl(handlerInput) {
+        const lang = util.getLang(handlerInput);
+        const finishUrl = `${c.resourcesParentUrl}/${lang}/timer_finish.mp3`;
+        console.log(`finishUrl : ${finishUrl}`);
+        return finishUrl;
     }
 
     // audio関連の情報を返す
