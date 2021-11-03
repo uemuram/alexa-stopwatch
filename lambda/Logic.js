@@ -94,12 +94,13 @@ class Logic {
         let read, write;
         switch (lang) {
             case 'ja':
+                let hhmmss;
                 if (h > 0) {
-                    let hhmmss = `${h}時間${m}分${s}秒`;
+                    hhmmss = `${h}時間${m}分${s}秒`;
                 } else if (m > 0) {
-                    let hhmmss = `${m}分${s}秒`;
+                    hhmmss = `${m}分${s}秒`;
                 } else {
-                    let hhmmss = `${s}秒`;
+                    hhmmss = `${s}秒`;
                 }
                 const hhmmss_read = hhmmss.replace('間0分', '間0ふん');
                 read = `
