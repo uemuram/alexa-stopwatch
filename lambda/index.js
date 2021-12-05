@@ -474,6 +474,22 @@ const HelpIntentHandler = {
     }
 };
 
+const FallbackIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
+    },
+    handle(handlerInput) {
+        const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
+        const speakOutput = `想定外の呼び出しが発生しました。もう一度お試しください。`;
+        console.log(intentName);
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .reprompt(speakOutput)
+            .getResponse();
+    }
+};
+
 // The intent reflector is used for interaction model testing and debugging.
 // It will simply repeat the intent the user said. You can create custom handlers
 // for your intents by defining them above, then also adding them to the request
@@ -545,6 +561,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         TimerStopPlaybackControllerHandler,
         TimerRestartPlaybackControllerHandler,
         SessionEndedRequestHandler,
+        FallbackIntentHandler,
         IntentReflectorHandler, // make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
     )
     .addErrorHandlers(

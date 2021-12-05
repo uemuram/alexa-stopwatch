@@ -106,6 +106,10 @@
                 {
                     "name": "AMAZON.ResumeIntent",
                     "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
                 }
             ],
             "types": [
