@@ -36,8 +36,11 @@ class Constant {
             // 1799000,
         ];
 
-        // "最後までオーディオ再生した回数"が何回蓄積したらアップセルを出すか
-        this.upSellFrequency = 5;
+        // 何回目の起動でアップセルを出すか
+        this.firstUpSellTime = 3;
+        // 一度アップセルを出した後、何回後間隔でアップセルを出すか
+        this.upSellFrequency = 20;
+
 
         // 終了用オーディオ
         //        this.timerFinishUrl = 'https://d1u8rmy92g9zyv.cloudfront.net/stopwatch/timer_finish.mp3';

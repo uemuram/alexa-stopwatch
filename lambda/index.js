@@ -23,26 +23,36 @@ const LaunchRequestHandler = {
 
         // アップセルを読み上げるかの判定(商品未購入 & 一定回数上限に到達)
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
-        if (
-            !entitled
-            && await util.getPersistentValue(handlerInput, "reach_limit_count") >= c.upSellFrequency
-        ) {
-            // 条件を満たす場合はカウンターをリセットしてアップセルに遷移
-            await util.setPersistentValue(handlerInput, "reach_limit_count", 0);
-            util.setState(handlerInput, c.UNDER_PURCHASE);
-            return handlerInput.responseBuilder
-                .addDirective({
-                    type: 'Connections.SendRequest',
-                    name: 'Upsell',
-                    payload: {
-                        InSkillProduct: {
-                            productId: c.productId,
+
+        // 未購入の場合のみ読み上げ判定処理
+        if (!entitled) {
+            const reachLimitCount = await util.getPersistentValue(handlerInput, "reach_limit_count");
+            if (reachLimitCount == null) {
+                // 初回起動の場合 : 上限到達回数の情報がない場合は回数をセット(次の起動時にアップセルを読み上げるようにする)
+                await util.setPersistentValue(handlerInput, "reach_limit_count", c.upSellFrequency - c.firstUpSellTime + 2);
+
+            } else if (reachLimitCount < c.upSellFrequency) {
+                // 閾値に到達していない場合はインクリメント
+                await util.setPersistentValue(handlerInput, "reach_limit_count", reachLimitCount + 1);
+
+            } else {
+                // 閾値に到達している場合はカウンターをリセットしてアップセルに移動
+                await util.setPersistentValue(handlerInput, "reach_limit_count", 0);
+                util.setState(handlerInput, c.UNDER_PURCHASE);
+                return handlerInput.responseBuilder
+                    .addDirective({
+                        type: 'Connections.SendRequest',
+                        name: 'Upsell',
+                        payload: {
+                            InSkillProduct: {
+                                productId: c.productId,
+                            },
+                            upsellMessage: 'ご利用ありがとうございます。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
                         },
-                        upsellMessage: 'ご利用ありがとうございます。ストップウォッチの計測時間は最大1時間ですが、拡張パックを購入するとさらに拡張できます。詳細を聞きますか?'
-                    },
-                    token: 'upsellToken',
-                })
-                .getResponse();
+                        token: 'upsellToken',
+                    })
+                    .getResponse();
+            }
         }
 
         // 計測開始
@@ -332,16 +342,6 @@ const PlaybackNearlyFinishedHandler = {
         const entitled = await logic.isEnitledExpansionPack(handlerInput);
         if (!entitled && nextIdx > c.freeTimerIdxLimit) {
             console.log(`商品未購入のため終了`);
-
-            // 上限に到達した回数をチェック
-            const reachLimitCount = await util.getPersistentValue(handlerInput, "reach_limit_count");
-            if (reachLimitCount == null) {
-                // 上限到達回数の情報がない場合は回数をセット(次の起動時にアップセルを読み上げるようにする)
-                await util.setPersistentValue(handlerInput, "reach_limit_count", c.upSellFrequency);
-            } else {
-                // 上限到達回数の情報がある場合はインクリメント
-                await util.setPersistentValue(handlerInput, "reach_limit_count", reachLimitCount + 1);
-            }
 
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective('ENQUEUE', c.timerFinishUrl, c.timerFinishToken, 0, audioInfo.token, c.timerFinishMetaData)
