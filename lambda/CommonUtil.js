@@ -36,7 +36,9 @@ class CommonUtil {
     async getPersistentValue(handlerInput, key) {
         const attr = handlerInput.attributesManager;
         const persistentAttributes = await attr.getPersistentAttributes();
-        return persistentAttributes[key];
+        const value = persistentAttributes[key];
+        console.log("永続データ取得 : " + JSON.stringify({ 'key': key, 'value': value }));
+        return value;
     }
 
     // 永続領域に値を入れる
